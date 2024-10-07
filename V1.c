@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <windows.h>
 
 // Def Structures
 
@@ -15,89 +14,71 @@ struct Player
 };
 //
 
-
-
 void Affichage_Joueur(Player Joueur)
 {
-
-    /*Montre uniquement Argent*/
-    printf("Nom : %s, Argent : %d, Role : %s ",Joueur.Nom,Joueur.Argent,Joueur.Role);
-    /* Mises non défnie pour l'instant*/
-    
+    /* Montre uniquement Argent */
+    printf(" \n Nom : %s, Argent : %d, Role : %s \n ", Joueur.Nom, Joueur.Argent, Joueur.Role);
 }
-
 
 Player Ajouter_Joueur(char *Name, int Argent, char *Role)
 {
-    
-    /* Création d'un joueur*/
-    
+    /* Création d'un joueur */
     Player *Player_cree = malloc(sizeof(*Player_cree));
     if (Player_cree == NULL) {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
         exit(EXIT_FAILURE);
     }
-    /*-----------------------*/
 
-    /* Modifications attributs*/
-    Player_cree->Argent=Argent;
-    Player_cree->Nom=Name;
-    Player_cree->Role=Role;
-    /*Non défini encore donc on le met à 0*/
-    Player_cree->Mise=0;
+    /* Allocation mémoire pour le nom et copie du nom */
+    Player_cree->Nom = malloc(strlen(Name) + 1); /*Caractère arrêt du string d'où le +1*/
+    if (Player_cree->Nom == NULL) {
+        fprintf(stderr, "Erreur d'allocation mémoire pour le nom\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(Player_cree->Nom, Name);/*Nous permet de copier Name dans Player_cree*/
 
-    /*------------------------*/
+    /* Modifications attributs */
+    Player_cree->Argent = Argent;
+    Player_cree->Role = Role;
+    Player_cree->Mise = 0;
 
-    /* On va return l'adresse de notre Joueur ( en temps que constante afin d'être sûr de ne pas l'altérer)*/
     return *Player_cree;
-    /*Soucis car retourne adresse d'une variable locale mais je voudrais que cette var soit globale et ensuite la stocker dans un viseur*/
-
 }
-
-
-
 
 int main()
 {
     int Joueurs_presents = 1;
     Player Record[6];
 
-    /* Définition du premier joueur*/
-    Player Joueur;
+    /* Définition du premier joueur */
     char Nom[20];
-    scanf("%s", &Nom);
-    char Role[20]="Neutre";
-    int Argent =2000;
-    Joueur = Ajouter_Joueur(Nom,Argent,Role);
-    Record[0]=Joueur;
-    /*------------------------------*/
+    scanf("%s", Nom);
+    char Role[20] = "Neutre";
+    int Argent = 2000;
+    Player Joueur = Ajouter_Joueur(Nom, Argent, Role);
+    Record[0] = Joueur;
 
-    while (Joueurs_presents <5 || *Nom !='=' ) /* Condition d'arrêt est lorsque l'on rentre = uniquement*/
+    /* Boucle pour ajouter des joueurs */
+    while (Joueurs_presents < 5 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
     {
         Joueurs_presents++;
-        char name[20];
-        scanf("%s", &name);
-        /* Conditions pas touchées encore mais faisable*/
-        char Role[20]="Neutre";
-        int Argent =2000;
-        /*-----------------------------------------------*/
-        if (*name !='=')
+        scanf("%s", Nom);
+        if (*Nom != '7')
         {
-            Player Joueur;
-            Joueur = Ajouter_Joueur(name,Argent,Role);
-            Record[Joueurs_presents-1]=Joueur; /* -& car indices commencent à 0 et notre Joueur présent lui à 1*/
-
+            Joueur = Ajouter_Joueur(Nom, Argent, Role);
+            Record[Joueurs_presents - 1] = Joueur;
         }
         else
         {
-            printf("Caractère exception fourni");
+            printf("Caractère sortie fourni \n");
             break;
         }
-        
     }
-    Affichage_Joueur(Record[0]);
-    Affichage_Joueur(Record[1]);
+
+    /* Affichage des joueurs */
+    for (int i = 0; i < Joueurs_presents; i++) {
+        Affichage_Joueur(Record[i]);
+    }
+
     return 0;
-
-
 }
