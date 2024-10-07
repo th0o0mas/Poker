@@ -20,7 +20,7 @@ void Affichage_Joueur(Player Joueur)
     printf(" \n Nom : %s, Argent : %d, Role : %s \n ", Joueur.Nom, Joueur.Argent, Joueur.Role);
 }
 
-Player Ajouter_Joueur(char *Name, int Argent, char *Role)
+Player Ajouter_Joueur(char *Name, int Argent, char *Role_g)
 {
     /* Création d'un joueur */
     Player *Player_cree = malloc(sizeof(*Player_cree));
@@ -37,21 +37,23 @@ Player Ajouter_Joueur(char *Name, int Argent, char *Role)
     }
     strcpy(Player_cree->Nom, Name);/*Nous permet de copier Name dans Player_cree*/
 
+    Player_cree->Role = malloc(strlen(Role_g) + 1); /*Caractère arrêt du string d'où le +1*/
+    if (Player_cree->Role == NULL) {
+        fprintf(stderr, "Erreur d'allocation mémoire pour le nom\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(Player_cree->Role, Role_g);
+
     /* Modifications attributs */
     Player_cree->Argent = Argent;
-    Player_cree->Role = Role;
     Player_cree->Mise = 0;
 
     return *Player_cree;
 }
 
-
-int main()
+int Enregistrement_des_Joueurs(Player Record[6])
 {
     int Joueurs_presents = 1;
-    Player Record[6];
-
-    /* Définition du premier joueur */
     char Nom[20];
     scanf("%s", Nom);
     char Role[20] = "Neutre";
@@ -75,11 +77,32 @@ int main()
             break;
         }
     }
+    return Joueurs_presents;
 
-    /* Affichage des joueurs */
-    for (int i = 0; i < Joueurs_presents; i++) {
+}
+
+
+
+int main()
+{
+    int Joueurs_nombre;
+    Player Record[6];
+    Joueurs_nombre= Enregistrement_des_Joueurs(Record);
+    
+    for (int i = 0; i < Joueurs_nombre; i++) {
         Affichage_Joueur(Record[i]);
     }
+    
+    
+    /*------------------------------------------*/
+    
+    for (int i = 0; i < Joueurs_nombre; i++) {
+        free(Record[i].Nom);
+        free(Record[i].Role);  // Libérer de chaque élement allouer dynamiquement ( à ajouter en fin de processus)
+    }
+
+
+    /*-----------------------------------------*/
 
     return 0;
 }
