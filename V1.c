@@ -45,6 +45,7 @@ Player Ajouter_Joueur(char *Name, int Argent, char *Role)
     return *Player_cree;
 }
 
+
 int main()
 {
     int Joueurs_presents = 1;
@@ -59,7 +60,7 @@ int main()
     Record[0] = Joueur;
 
     /* Boucle pour ajouter des joueurs */
-    while (Joueurs_presents < 5 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
+    while (Joueurs_presents < 6 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
     {
         Joueurs_presents++;
         scanf("%s", Nom);
