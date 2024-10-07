@@ -64,10 +64,12 @@ int Enregistrement_des_Joueurs(Player Record[6])
     /* Boucle pour ajouter des joueurs */
     while (Joueurs_presents < 6 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
     {
-        Joueurs_presents++;
+        
+        
         scanf("%s", Nom);
         if (*Nom != '7')
         {
+            Joueurs_presents++;
             Joueur = Ajouter_Joueur(Nom, Argent, Role);
             Record[Joueurs_presents - 1] = Joueur;
         }
@@ -76,6 +78,7 @@ int Enregistrement_des_Joueurs(Player Record[6])
             printf("Caractère sortie fourni \n");
             break;
         }
+        
     }
     return Joueurs_presents;
 
