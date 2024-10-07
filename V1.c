@@ -8,38 +8,26 @@
 typedef struct Player Player;
 struct Player
 {
-    int Role; /* 1 = Dealer, 2= SB, 3=BB */
+    char *Role; 
     char *Nom;
     int Argent;
     int Mise;
 };
-
-typedef struct Viseur Viseur;
-struct Viseur
-{
-    Player *Ptr_Player;
-};
-
 //
 
 
 
-void Affichage_Joueur(Player *Joueur)
+void Affichage_Joueur(Player Joueur)
 {
-    if (Joueur = NULL)
-    {
-        printf("Mauvais pointeur fourni");
-    }
-    else
-    {
-        printf("Ici");
-        /*Montre uniquement Argent*/
-        printf("Nom %d",Joueur->Argent);
-    }
+
+    /*Montre uniquement Argent*/
+    printf("Nom : %s, Argent : %d, Role : %s ",Joueur.Nom,Joueur.Argent,Joueur.Role);
+    /* Mises non défnie pour l'instant*/
+    
 }
 
 
-Player Ajouter_Joueur(char *Name, int Argent, int Role)
+Player Ajouter_Joueur(char *Name, int Argent, char *Role)
 {
     
     /* Création d'un joueur*/
@@ -52,9 +40,8 @@ Player Ajouter_Joueur(char *Name, int Argent, int Role)
     /*-----------------------*/
 
     /* Modifications attributs*/
-    
     Player_cree->Argent=Argent;
-    Player_cree->Nom=*Name;
+    Player_cree->Nom=Name;
     Player_cree->Role=Role;
     /*Non défini encore donc on le met à 0*/
     Player_cree->Mise=0;
@@ -62,7 +49,6 @@ Player Ajouter_Joueur(char *Name, int Argent, int Role)
     /*------------------------*/
 
     /* On va return l'adresse de notre Joueur ( en temps que constante afin d'être sûr de ne pas l'altérer)*/
-    Affichage_Joueur(Player_cree);
     return *Player_cree;
     /*Soucis car retourne adresse d'une variable locale mais je voudrais que cette var soit globale et ensuite la stocker dans un viseur*/
 
@@ -73,13 +59,44 @@ Player Ajouter_Joueur(char *Name, int Argent, int Role)
 
 int main()
 {
-    char Nom[20]="Thomas";
-    int Argent=2000;
-    int Role = 0;
+    int Joueurs_presents = 1;
+    Player Record[6];
+
+    /* Définition du premier joueur*/
     Player Joueur;
-    printf("0");
+    char Nom[20];
+    scanf("%s", &Nom);
+    char Role[20]="Neutre";
+    int Argent =2000;
     Joueur = Ajouter_Joueur(Nom,Argent,Role);
-    printf("B");
+    Record[0]=Joueur;
+    /*------------------------------*/
+
+    while (Joueurs_presents <5 || *Nom !='=' ) /* Condition d'arrêt est lorsque l'on rentre = uniquement*/
+    {
+        Joueurs_presents++;
+        char name[20];
+        scanf("%s", &name);
+        /* Conditions pas touchées encore mais faisable*/
+        char Role[20]="Neutre";
+        int Argent =2000;
+        /*-----------------------------------------------*/
+        if (*name !='=')
+        {
+            Player Joueur;
+            Joueur = Ajouter_Joueur(name,Argent,Role);
+            Record[Joueurs_presents-1]=Joueur; /* -& car indices commencent à 0 et notre Joueur présent lui à 1*/
+
+        }
+        else
+        {
+            printf("Caractère exception fourni");
+            break;
+        }
+        
+    }
+    Affichage_Joueur(Record[0]);
+    Affichage_Joueur(Record[1]);
     return 0;
 
 
