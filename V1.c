@@ -9,7 +9,7 @@ struct Player
 {
     char *Role; 
     char *Nom;
-    char *Etat; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise*/
+    char *Etat; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise ou Mort*/
     int Argent;
     int Mise;
 };
@@ -122,15 +122,33 @@ void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
     /* On commence d'abord par mettre les mises de petite blinde et grosse blinde (en s'assurant qu'ils aient assez, sinon ils sont all in et sinon)*/
     for (int i=0; i<Joueurs_nombre; i++)
     {
-        if (Record[i].Role=="Small Blind")
+        if (Record[i].Role=="Small Blind" && Record[i].Etat!="Mort") 
         {
-            Record[i].Mise=Small_Blind_Actuelle;
-            Ajouter_Argent(Record[i],-Small_Blind_Actuelle);
+            if (Record[i].Argent > Small_Blind_Actuelle)
+            {    
+                Record[i].Mise=Small_Blind_Actuelle;
+                Ajouter_Argent(Record[i],-Small_Blind_Actuelle);
+            }
+            else
+            {
+                Record[i].Role="All In";
+                Record[i].Mise=Record[i].Argent;
+                Ajouter_Argent(Record[i],-Record[i].Argent);
+            }
         }
-        if (Record[i].Role=="Big Blind")
+        if (Record[i].Role=="Big Blind" && Record[i].Etat!="Mort") 
         {
-            Record[i].Mise=2*Small_Blind_Actuelle;
-            Ajouter_Argent(Record[i],-(2*Small_Blind_Actuelle));
+            if (Record[i].Argent > 2* Small_Blind_Actuelle)
+            {    
+                Record[i].Mise=Small_Blind_Actuelle;
+                Ajouter_Argent(Record[i],-Small_Blind_Actuelle);
+            }
+            else
+            {
+                Record[i].Role="All In";
+                Record[i].Mise=Record[i].Argent;
+                Ajouter_Argent(Record[i],-Record[i].Argent);
+            }
         }
     }
 
