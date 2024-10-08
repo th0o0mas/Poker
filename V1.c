@@ -55,7 +55,7 @@ int Enregistrement_des_Joueurs(Player Record[6])
 {
     int Joueurs_presents = 1;
     char Nom[20];
-    scanf("%s", Nom);
+    scanf("%s\n", Nom);
     char Role[20] = "Neutre";
     int Argent = 2000;
     Player Joueur = Ajouter_Joueur(Nom, Argent, Role);
@@ -65,8 +65,7 @@ int Enregistrement_des_Joueurs(Player Record[6])
     while (Joueurs_presents < 6 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
     {
         
-        
-        scanf("%s", Nom);
+        scanf("%s\n", Nom);
         if (*Nom != '7')
         {
             Joueurs_presents++;
@@ -85,6 +84,23 @@ int Enregistrement_des_Joueurs(Player Record[6])
 }
 
 
+void Initialisation_Roles(Player Record[6])
+{
+    /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
+    Record[0].Role="Dealer";
+    Record[1].Role="Small Blind";
+    Record[2].Role="Big Blind";
+}
+
+
+int Affichage_Argent_Pot(Player Record[6], int Joueurs_nombre)
+{
+    int Somme;
+    for (int i = 0; i < Joueurs_nombre; i++) {
+        Somme+=Record[i].Mise;
+    }
+    return Somme;
+}
 
 int main()
 {
@@ -98,6 +114,9 @@ int main()
     
     
     /*------------------------------------------*/
+    Initialisation_Roles(Record);
+    /*Marche bien */
+
     
     for (int i = 0; i < Joueurs_nombre; i++) {
         free(Record[i].Nom);
