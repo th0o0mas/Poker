@@ -120,6 +120,7 @@ void Ajouter_Argent(Player Joueurs, int Argent_incremente)
 void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
 {
     /* On commence d'abord par mettre les mises de petite blinde et grosse blinde (en s'assurant qu'ils aient assez, sinon ils sont all in et sinon)*/
+    int index_big_blind;
     for (int i=0; i<Joueurs_nombre; i++)
     {
         if (Record[i].Role=="Small Blind" && Record[i].Etat!="Mort") 
@@ -138,10 +139,11 @@ void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
         }
         if (Record[i].Role=="Big Blind" && Record[i].Etat!="Mort") 
         {
-            if (Record[i].Argent > 2* Small_Blind_Actuelle)
+            if (Record[i].Argent > 2* Small_Blind_Actuelle )
             {    
-                Record[i].Mise=Small_Blind_Actuelle;
-                Ajouter_Argent(Record[i],-Small_Blind_Actuelle);
+                index_big_blind =i;
+                Record[i].Mise=2*Small_Blind_Actuelle;
+                Ajouter_Argent(Record[i],-2*Small_Blind_Actuelle);
             }
             else
             {
@@ -150,6 +152,43 @@ void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
                 Ajouter_Argent(Record[i],-Record[i].Argent);
             }
         }
+    }
+
+    /*-------------*/
+    int index_incrementable = index_big_blind;
+    /*Au tour des autres joueurs de miser */
+    while (index_incrementable+1<Joueurs_nombre)
+    {
+        if (Record[index_incrementable+1].Mise==0 || Record[index_incrementable+1].Etat != "Mort") /* au cas ou small blind soit après petite blinde puisque cela tourne*/
+        {
+            /*Demande de mise*/
+            char *Mise_type;
+           
+            printf("Tour de %s de Miser \n", Record[index_incrementable+1].Nom);
+            printf("C pour call, R pour Raise, A pour All In et S pour Sleep : ");
+            scanf("%c",&Mise_type);
+            if (Mise_type="C")
+            {
+                if (Record[index_incrementable+1].Argent > Record[index_incrementable].Mise)
+                {    
+                    Record[index_incrementable+1].Mise=Record[index_incrementable].Mise;
+                    printf("Vous avez misé : %d \n", Record[index_incrementable+1].Mise);
+                }
+                else 
+                {
+                    printf("\n Vous n'avez pas assez d'argent\n ");
+                    printf("Voulez-vous All In ou se coucger (A,S) ? \n");
+                    scanf("%c", &Mise);
+                }
+            }
+            else if (Mise_type="A")
+            {
+                /*Complexe mais faisable*/
+            }
+
+
+        }
+
     }
 
 
