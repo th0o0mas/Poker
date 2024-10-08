@@ -65,8 +65,9 @@ int Enregistrement_des_Joueurs(Player Record[6])
     char Nom[20];
     scanf("%s\n", Nom);
     char Role[20] = "Neutre";
+    char Etat[8] ="Neutre";
     int Argent = 2000;
-    Player Joueur = Ajouter_Joueur(Nom, Argent, Role);
+    Player Joueur = Ajouter_Joueur(Nom, Argent, Role,Etat);
     Record[0] = Joueur;
 
     /* Boucle pour ajouter des joueurs */
@@ -77,7 +78,7 @@ int Enregistrement_des_Joueurs(Player Record[6])
         if (*Nom != '7')
         {
             Joueurs_presents++;
-            Joueur = Ajouter_Joueur(Nom, Argent, Role);
+            Joueur = Ajouter_Joueur(Nom, Argent, Role,Etat);
             Record[Joueurs_presents - 1] = Joueur;
         }
         else
@@ -132,7 +133,6 @@ void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
             Ajouter_Argent(Record[i],-(2*Small_Blind_Actuelle));
         }
     }
-    i++;
 
 
 }
