@@ -1,97 +1,118 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
 #define MAX_PLAYERS 14
-#define ROLE_SIZE 11
-#define NAME_SIZE 20
-#define STATUS_SIZE 7
+#define SIZE_ROLE 11
+#define SIZE_NAME 20
+#define SIZE_STATE 7
+// Def Structures
 
-// Define the Player structure
-typedef struct Player {
-    char role[ROLE_SIZE];   // Player's role (Dealer, Small Blind, etc.)
-    char name[NAME_SIZE];   // Player's name
-    char status[STATUS_SIZE]; // Player's status (All-in, Fold, Raise, etc.)
-    int money;              // Player's money
-    int bet;                // Player's current bet
-} Player;
+typedef struct Player Player;
+struct Player
+{
+    char Role[SIZE_ROLE]; /* On met tout en statique car plus rapide*/ 
+    char Name[SIZE_NAME];
+    char State[SIZE_STATE]; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise ou Mort*/
+    int Money;
+    int Bet;
+    /* Add First to play beacause the one raising should be the first to play next round*/
+};
+//
 
-// Function to display player information
-void DisplayPlayerInfo(Player *players, int index) {
-    printf("Money: %d, Name: %s", players[index].money, players[index].name);
+void PrintPokerBanner() {
+    printf("\n\n");
+    printf("PPPP    OOO   K   K  EEEEE  RRRR  \n");
+    printf("P   P  O   O  K  K   E      R   R \n");
+    printf("PPPP   O   O  KKK    EEEE   RRRR  \n");
+    printf("P      O   O  K  K   E      R R   \n");
+    printf("P       OOO   K   K  EEEEE  R  RR \n");
+    printf("\n\n");
 }
 
-// Function to add a new player
-void AddPlayer(char *name, int money, char *role, char *status, Player *new_player) {
-    // Copy the player's name, role, and status into the new player struct
-    strcpy(new_player->name, name);
-    strcpy(new_player->role, role);
-    strcpy(new_player->status, status);
-
-    // Initialize player's money and bet
-    new_player->money = money;
-    new_player->bet = 0;
+void Display_Of_Players(Player *Array_Of_Players, int Index) /*Takes a record of player and the index of our player */
+{
+    printf("Money :%d, Name:%s",((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Name);
 }
 
-// Function to register players
-void RegisterPlayers(Player *player_array, int *current_player_count) {
-    char name[NAME_SIZE];
-    char role[ROLE_SIZE] = "Neutral";
-    char status[STATUS_SIZE] = "Neutral";
-    int money = 2000;
-    int player_index = *current_player_count;
+void Initialization_Of_A_Player(char *Name, int Money, char *Role_g, char *State_g, Player *Player_Yet_To_Initialise) /*Here we would give the adresse of let's say Array_Of_Players[0] in order to only affect this one*/
+{
+    /**/
+    strcpy(Player_Yet_To_Initialise->Name, Name);/*Nous permet de copier Name dans Player_Yet_To_Initialise*/
 
-    while (player_index < 5) { // For simplicity, limit to 5 players
-        printf("Please enter the name of player %d: ", player_index);
-        
-        if (fgets(name, NAME_SIZE, stdin) != NULL && *name != '.') {
-            AddPlayer(name, money, role, status, &player_array[player_index]);
-            DisplayPlayerInfo(player_array, player_index);
-            player_index++;
-        } else {
-            fprintf(stderr, "Error reading input or end of acquisition\n");
+    strcpy(Player_Yet_To_Initialise->Role, Role_g);
+
+    strcpy(Player_Yet_To_Initialise->State, State_g);
+
+    /* Modifications attributs */
+    Player_Yet_To_Initialise->Money = Money;
+    Player_Yet_To_Initialise->Bet = 0;
+}
+
+void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
+{
+    char Name[SIZE_NAME];
+    char Role[SIZE_ROLE] = "Neutre";
+    char State[SIZE_STATE] ="Neutre";
+    int Money = 2000;
+    while (Players_In_Game < 5) 
+    {
+        printf("Please, enter the name of player %d : ", Players_In_Game);
+        if (fgets(Name,SIZE_NAME,stdin) !=NULL && *Name!='.') 
+        {
+            Initialization_Of_A_Player(Name, Money, Role,State, &Array_Of_Player[Players_In_Game]);
+            Display_Of_Players(Array_Of_Player,Players_In_Game);
+            Players_In_Game++;
+        } 
+        else 
+        { 
+            printf("\n Error get or end of acquisition \n",stderr);
             break;
-        }
-    }
+        } 
 
-    // Update the current player count
-    *current_player_count = player_index;
+    }    
+
 }
 
-// Function to initialize player roles
-void InitializeRoles(Player *players) {
-    // Simple role assignment: 0 = Dealer, 1 = Small Blind, 2 = Big Blind
-    strcpy(players[0].role, "Dealer");
-    strcpy(players[1].role, "Small Blind");
-    strcpy(players[2].role, "Big Blind");
+
+void Initialisation_Roles(Player *Array_Of_Players)
+{
+    /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
+    strcpy((&Array_Of_Players[0])->Role,"Dealer");
+    strcpy((&Array_Of_Players[1])->Role,"Small Blind");
+    strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
 }
 
-// Function to add money to a player
-void AddMoney(Player *player, int amount) {
-    player->money += amount;
+
+void Ajouter_Argent(Player *Player_Selected, int *Money_Incremented)
+{
+    Player_Selected->Money += *Money_Incremented;
 }
 
-// Function to display available actions
-void ShowPlayerOptions() {
-    printf("\nPossible actions:\n");
+void Afficher_Options()
+{
+    printf("\nPossible Actions :\n");
     printf("1. Raise\n");
     printf("2. Call\n");
     printf("3. Fold\n");
     printf("4. All-In\n");
-    printf("Choose your action (1, 2, 3, or 4): ");
+    printf("Choisissez votre action (1, 2, 3, 4) : ");
 }
+    
 
-int main() {
-    int player_count = 0;  // Initialize player count
-    Player player_array[MAX_PLAYERS];  // Array to hold players
+int main()
+{
+    PrintPokerBanner();
+    int Number_Od_Player =0; /* Initialisation */
+    Player Array_Of_Players[MAX_PLAYERS];
+    Definition_Of_All_Players(Array_Of_Players, Number_Od_Player);
+    
+    /*------------------------------------------*/
+    Display_Of_Players(Array_Of_Players,1);
+    Initialisation_Roles(Array_Of_Players);
 
-    // Register players
-    RegisterPlayers(player_array, &player_count);
 
-    // Initialize player roles
-    InitializeRoles(player_array);
 
-    // More game logic can be added here...
+    /*-----------------------------------------*/
 
     return 0;
 }
