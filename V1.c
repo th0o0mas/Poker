@@ -2,222 +2,96 @@
 #include <string.h>
 #include <stdlib.h>
 
-// Def Structures
+#define MAX_PLAYERS 14
+#define ROLE_SIZE 11
+#define NAME_SIZE 20
+#define STATUS_SIZE 7
 
-typedef struct Player Player;
-struct Player
-{
-    char *Role; 
-    char *Nom;
-    char *Etat; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise ou Mort*/
-    int Argent;
-    int Mise;
-};
-//
+// Define the Player structure
+typedef struct Player {
+    char role[ROLE_SIZE];   // Player's role (Dealer, Small Blind, etc.)
+    char name[NAME_SIZE];   // Player's name
+    char status[STATUS_SIZE]; // Player's status (All-in, Fold, Raise, etc.)
+    int money;              // Player's money
+    int bet;                // Player's current bet
+} Player;
 
-void Affichage_Joueur(Player Joueur)
-{
-    /* Montre uniquement Argent */
-    printf(" \n Nom : %s, Argent : %d, Role : %s \n ", Joueur.Nom, Joueur.Argent, Joueur.Role);
+// Function to display player information
+void DisplayPlayerInfo(Player *players, int index) {
+    printf("Money: %d, Name: %s", players[index].money, players[index].name);
 }
 
-Player Ajouter_Joueur(char *Name, int Argent, char *Role_g, char *Etat_g)
-{
-    /* Création d'un joueur */
-    Player *Player_cree = malloc(sizeof(*Player_cree));
-    if (Player_cree == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire\n");
-        exit(EXIT_FAILURE);
-    }
+// Function to add a new player
+void AddPlayer(char *name, int money, char *role, char *status, Player *new_player) {
+    // Copy the player's name, role, and status into the new player struct
+    strcpy(new_player->name, name);
+    strcpy(new_player->role, role);
+    strcpy(new_player->status, status);
 
-    /* Allocation mémoire pour le nom et copie du nom */
-    Player_cree->Nom = malloc(strlen(Name) + 1); /*Caractère arrêt du string d'où le +1*/
-    if (Player_cree->Nom == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire pour le nom\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(Player_cree->Nom, Name);/*Nous permet de copier Name dans Player_cree*/
-
-    Player_cree->Role = (char*) malloc(11); /*On prend 11 carac pour enregistrer small blind*/
-    if (Player_cree->Role == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire pour le nom\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(Player_cree->Role, Role_g);
-
-    Player_cree->Etat = (char*) malloc(7); /*7 pour ALL IN et moins pour les autres*/
-    if (Player_cree->Etat == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire pour le nom\n");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(Player_cree->Etat, Etat_g);
-
-    /* Modifications attributs */
-    Player_cree->Argent = Argent;
-    Player_cree->Mise = 0;
-
-    return *Player_cree;
+    // Initialize player's money and bet
+    new_player->money = money;
+    new_player->bet = 0;
 }
 
-int Enregistrement_des_Joueurs(Player Record[6])
-{
-    int Joueurs_presents = 1;
-    char Nom[20];
-    scanf("%s\n", Nom);
-    char Role[20] = "Neutre";
-    char Etat[8] ="Neutre";
-    int Argent = 2000;
-    Player Joueur = Ajouter_Joueur(Nom, Argent, Role,Etat);
-    Record[0] = Joueur;
+// Function to register players
+void RegisterPlayers(Player *player_array, int *current_player_count) {
+    char name[NAME_SIZE];
+    char role[ROLE_SIZE] = "Neutral";
+    char status[STATUS_SIZE] = "Neutral";
+    int money = 2000;
+    int player_index = *current_player_count;
 
-    /* Boucle pour ajouter des joueurs */
-    while (Joueurs_presents < 6 && *Nom != '7')  // Utilise && pour une condition d'arrêt correcte
-    {
+    while (player_index < 5) { // For simplicity, limit to 5 players
+        printf("Please enter the name of player %d: ", player_index);
         
-        scanf("%s\n", Nom);
-        if (*Nom != '7')
-        {
-            Joueurs_presents++;
-            Joueur = Ajouter_Joueur(Nom, Argent, Role,Etat);
-            Record[Joueurs_presents - 1] = Joueur;
-        }
-        else
-        {
-            printf("Caractère sortie fourni \n");
+        if (fgets(name, NAME_SIZE, stdin) != NULL && *name != '.') {
+            AddPlayer(name, money, role, status, &player_array[player_index]);
+            DisplayPlayerInfo(player_array, player_index);
+            player_index++;
+        } else {
+            fprintf(stderr, "Error reading input or end of acquisition\n");
             break;
         }
-        
     }
-    return Joueurs_presents;
 
+    // Update the current player count
+    *current_player_count = player_index;
 }
 
-
-void Initialisation_Roles(Player Record[6])
-{
-    /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
-    Record[0].Role="Dealer";
-    Record[1].Role="Small Blind";
-    Record[2].Role="Big Blind";
+// Function to initialize player roles
+void InitializeRoles(Player *players) {
+    // Simple role assignment: 0 = Dealer, 1 = Small Blind, 2 = Big Blind
+    strcpy(players[0].role, "Dealer");
+    strcpy(players[1].role, "Small Blind");
+    strcpy(players[2].role, "Big Blind");
 }
 
-
-
-int Affichage_Argent_Pot(Player Record[6], int Joueurs_nombre)
-{
-    int Somme;
-    for (int i = 0; i < Joueurs_nombre; i++) {
-        Somme+=Record[i].Mise;
-    }
-    return Somme;
+// Function to add money to a player
+void AddMoney(Player *player, int amount) {
+    player->money += amount;
 }
 
-void Ajouter_Argent(Player Joueurs, int Argent_incremente)
-{
-    Joueurs.Argent += Argent_incremente;
+// Function to display available actions
+void ShowPlayerOptions() {
+    printf("\nPossible actions:\n");
+    printf("1. Raise\n");
+    printf("2. Call\n");
+    printf("3. Fold\n");
+    printf("4. All-In\n");
+    printf("Choose your action (1, 2, 3, or 4): ");
 }
 
-void Mise(Player Record[6], int Joueurs_nombre, int Small_Blind_Actuelle)
-{
-    /* On commence d'abord par mettre les mises de petite blinde et grosse blinde (en s'assurant qu'ils aient assez, sinon ils sont all in et sinon)*/
-    int index_big_blind;
-    for (int i=0; i<Joueurs_nombre; i++)
-    {
-        if (Record[i].Role=="Small Blind" && Record[i].Etat!="Mort") 
-        {
-            if (Record[i].Argent > Small_Blind_Actuelle)
-            {    
-                Record[i].Mise=Small_Blind_Actuelle;
-                Ajouter_Argent(Record[i],-Small_Blind_Actuelle);
-            }
-            else
-            {
-                Record[i].Role="All In";
-                Record[i].Mise=Record[i].Argent;
-                Ajouter_Argent(Record[i],-Record[i].Argent);
-            }
-        }
-        if (Record[i].Role=="Big Blind" && Record[i].Etat!="Mort") 
-        {
-            if (Record[i].Argent > 2* Small_Blind_Actuelle )
-            {    
-                index_big_blind =i;
-                Record[i].Mise=2*Small_Blind_Actuelle;
-                Ajouter_Argent(Record[i],-2*Small_Blind_Actuelle);
-            }
-            else
-            {
-                Record[i].Role="All In";
-                Record[i].Mise=Record[i].Argent;
-                Ajouter_Argent(Record[i],-Record[i].Argent);
-            }
-        }
-    }
+int main() {
+    int player_count = 0;  // Initialize player count
+    Player player_array[MAX_PLAYERS];  // Array to hold players
 
-    /*-------------*/
-    int index_incrementable = index_big_blind;
-    /*Au tour des autres joueurs de miser */
-    while (index_incrementable+1<Joueurs_nombre)
-    {
-        if (Record[index_incrementable+1].Mise==0 || Record[index_incrementable+1].Etat != "Mort") /* au cas ou small blind soit après petite blinde puisque cela tourne*/
-        {
-            /*Demande de mise*/
-            char *Mise_type;
-           
-            printf("Tour de %s de Miser \n", Record[index_incrementable+1].Nom);
-            printf("C pour call, R pour Raise, A pour All In et S pour Sleep : ");
-            scanf("%c",&Mise_type);
-            if (Mise_type="C")
-            {
-                if (Record[index_incrementable+1].Argent > Record[index_incrementable].Mise)
-                {    
-                    Record[index_incrementable+1].Mise=Record[index_incrementable].Mise;
-                    printf("Vous avez misé : %d \n", Record[index_incrementable+1].Mise);
-                }
-                else 
-                {
-                    printf("\n Vous n'avez pas assez d'argent\n ");
-                    printf("Voulez-vous All In ou se coucger (A,S) ? \n");
-                    scanf("%c", &Mise);
-                }
-            }
-            else if (Mise_type="A")
-            {
-                /*Complexe mais faisable*/
-            }
+    // Register players
+    RegisterPlayers(player_array, &player_count);
 
+    // Initialize player roles
+    InitializeRoles(player_array);
 
-        }
-
-    }
-
-
-}
-
-int main()
-{
-    int Joueurs_nombre;
-    Player Record[6];
-    Joueurs_nombre= Enregistrement_des_Joueurs(Record);
-    
-    for (int i = 0; i < Joueurs_nombre; i++) {
-        Affichage_Joueur(Record[i]);
-    }
-    
-    
-    /*------------------------------------------*/
-    Initialisation_Roles(Record);
-    /*Marche bien */
-
-    
-    for (int i = 0; i < Joueurs_nombre; i++) {
-        free(Record[i].Nom);
-        free(Record[i].Role);
-        free(Record[i].Etat);  // Libérer de chaque élement allouer dynamiquement ( à ajouter en fin de processus)
-    }
-
-
-    /*-----------------------------------------*/
+    // More game logic can be added here...
 
     return 0;
 }
