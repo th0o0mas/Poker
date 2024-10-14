@@ -5,6 +5,7 @@
 #define SIZE_ROLE 11
 #define SIZE_NAME 20
 #define SIZE_STATE 7
+
 // Def Structures
 
 typedef struct Player Player;
@@ -50,18 +51,19 @@ void Initialization_Of_A_Player(char *Name, int Money, char *Role_g, char *State
 
 void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
 {
+    int Players_Incremental = 0;
     char Name[SIZE_NAME];
     char Role[SIZE_ROLE] = "Neutre";
     char State[SIZE_STATE] ="Neutre";
     int Money = 2000;
-    while (Players_In_Game < 5) 
+    while (Players_Incremental < Players_In_Game) 
     {
-        printf("Please, enter the name of player %d : ", Players_In_Game);
+        printf("Please, enter the name of player %d : ", Players_Incremental+1);
         if (fgets(Name,SIZE_NAME,stdin) !=NULL && *Name!='.') 
         {
-            Initialization_Of_A_Player(Name, Money, Role,State, &Array_Of_Player[Players_In_Game]);
-            Display_Of_Players(Array_Of_Player,Players_In_Game);
-            Players_In_Game++;
+            Initialization_Of_A_Player(Name, Money, Role,State, &Array_Of_Player[Players_Incremental]);
+            Display_Of_Players(Array_Of_Player,Players_Incremental);
+            Players_Incremental++;
         } 
         else 
         { 
@@ -77,9 +79,9 @@ void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
 void Initialisation_Roles(Player *Array_Of_Players)
 {
     /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
-    strcpy((&Array_Of_Players[0])->Role,"Dealer");
-    strcpy((&Array_Of_Players[1])->Role,"Small Blind");
-    strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
+    strcpy(Array_Of_Players[0].Role,"Dealer");
+    strcpy(Array_Of_Players[1].Role,"Small Blind");
+    strcpy(Array_Of_Players[2].Role,"Big Blind"); /* Do tests To make sure of performances*/
 }
 
 
@@ -102,14 +104,17 @@ void Afficher_Options()
 int main()
 {
     PrintPokerBanner();
-    int Number_Od_Player =0; /* Initialisation */
-    Player Array_Of_Players[MAX_PLAYERS];
-    Definition_Of_All_Players(Array_Of_Players, Number_Od_Player);
+
+    int Number_Of_Player =0; /* Initialisation */
+    printf("\n \n How many players are present : ");
+    scanf("%d", &Number_Of_Player);
+    getchar();
+    Player Array_Of_Players[Number_Of_Player];
+    Definition_Of_All_Players(Array_Of_Players, Number_Of_Player);
     
     /*------------------------------------------*/
     Display_Of_Players(Array_Of_Players,1);
     Initialisation_Roles(Array_Of_Players);
-
 
 
     /*-----------------------------------------*/
