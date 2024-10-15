@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #define MAX_PLAYERS 14
-#define SIZE_ROLE 11
+#define SIZE_ROLE 13
 #define SIZE_NAME 20
 #define SIZE_STATE 7
 
@@ -32,7 +32,8 @@ void PrintPokerBanner() {
 
 void Display_Of_Players(Player *Array_Of_Players, int Index) /*Takes a record of player and the index of our player */
 {
-    printf("Money :%d, Name:%s",((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Name);
+    printf("\nMoney :%d Name:%s Role : %s",((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Name, (&Array_Of_Players[Index])->Role);
+    printf("Role : %s \n", (&Array_Of_Players[Index])->Role);
 }
 
 void Initialization_Of_A_Player(char *Name, int Money, char *Role_g, char *State_g, Player *Player_Yet_To_Initialise) /*Here we would give the adresse of let's say Array_Of_Players[0] in order to only affect this one*/
@@ -62,7 +63,6 @@ void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
         if (fgets(Name,SIZE_NAME,stdin) !=NULL && *Name!='.') 
         {
             Initialization_Of_A_Player(Name, Money, Role,State, &Array_Of_Player[Players_Incremental]);
-            Display_Of_Players(Array_Of_Player,Players_Incremental);
             Players_Incremental++;
         } 
         else 
@@ -79,13 +79,13 @@ void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
 void Initialisation_Roles(Player *Array_Of_Players)
 {
     /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
-    strcpy(Array_Of_Players[0].Role,"Dealer");
-    strcpy(Array_Of_Players[1].Role,"Small Blind");
-    strcpy(Array_Of_Players[2].Role,"Big Blind"); /* Do tests To make sure of performances*/
+    strcpy((&Array_Of_Players[0])->Role,"Dealer");
+    strcpy((&Array_Of_Players[1])->Role,"Small Blind");
+    strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
 }
 
 
-void Ajouter_Argent(Player *Player_Selected, int *Money_Incremented)
+void Add_Money(Player *Player_Selected, int *Money_Incremented)
 {
     Player_Selected->Money += *Money_Incremented;
 }
@@ -99,22 +99,63 @@ void Afficher_Options()
     printf("4. All-In\n");
     printf("Choisissez votre action (1, 2, 3, 4) : ");
 }
+
+void Betting_Add_On_Modifying_Money(Player *Array_Of_Players, int Bet)
+{
+
+}
+
+void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind)
+{
+    /*  Small Blind laways bet first (could implement the guy raising being the first one to bid) */
+    int Index_SB,Index_BB;
+    int Option;
+    int Bet;
+    for (int i=0; i<Number_Of_Players;i++)
+    {    
+        if (Array_Of_Players[i].Role == "Small Blind")
+        {
+            Index_SB =i;
+        }
+        if (Array_Of_Players[i].Role == "Big Blind")
+        {
+            Index_BB =i;
+        }
+    }
+
+    printf("Small Blind is $%d", Small_Blind);
+    /* We make the Small Blind pay*/
+    if (Array_Of_Players[Index_SB].Money > Small_Blind)
+    {
+        // No worries we just bet as usual
+
+
+    }
+
+    
+
+
+}
     
 
 int main()
 {
     PrintPokerBanner();
 
-    int Number_Of_Player =0; /* Initialisation */
+    int Number_Of_Players =0; /* Initialisation */
     printf("\n \n How many players are present : ");
-    scanf("%d", &Number_Of_Player);
+    scanf("%d", &Number_Of_Players);
     getchar();
-    Player Array_Of_Players[Number_Of_Player];
-    Definition_Of_All_Players(Array_Of_Players, Number_Of_Player);
+    Player Array_Of_Players[Number_Of_Players];
+    Definition_Of_All_Players(Array_Of_Players, Number_Of_Players);
     
     /*------------------------------------------*/
-    Display_Of_Players(Array_Of_Players,1);
     Initialisation_Roles(Array_Of_Players);
+    for (int i=0; i<Number_Of_Players;i++)
+    {    
+        Display_Of_Players(Array_Of_Players,i);
+    }
+    
 
 
     /*-----------------------------------------*/
