@@ -16,6 +16,7 @@ struct Player
     char State[SIZE_STATE]; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise ou Mort*/
     int Money;
     int Bet;
+    int dead; /* 0 if alive*/
     /* Add First to play beacause the one raising should be the first to play next round*/
 };
 //
@@ -105,19 +106,34 @@ void Betting_Add_On_Modifying_Money(Player *Player_selected, int Bet)
     Add_Money(Player_selected, -Bet);
 }
 
+void Verify_Players_Have_Money(Player *Array_Of_Players, int Number_of_Players)
+{
+    for (int i=0; i<Number_of_Players; i++)
+    {
+        if ((Array_Of_Players[i].Money)==0)
+        {
+            printf(" \n %s is dead \n", Array_Of_Players[i].Name);
+            Array_Of_Players[i].dead = 1;
+        }
+    }
+}
+
+
+
 void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind)
 {
     /*  Small Blind laways bet first (could implement the guy raising being the first one to bid) */
     int Index_SB,Index_BB;
     int Option;
     int Bet;
+    Verify_Players_Have_Money(Array_Of_Players, Number_Of_Players);
     for (int i=0; i<Number_Of_Players;i++)
     {    
         if (strcmp(Array_Of_Players[i].Role,"Small Blind"))
         {
             Index_SB =i;
         }
-        if (strcmp(Array_Of_Players[i].Role == "Big Blind"))
+        if (strcmp(Array_Of_Players[i].Role,"Big Blind"))
         {
             Index_BB =i;
         }
@@ -125,12 +141,12 @@ void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 
     printf("Small Blind is $%d", Small_Blind);
     /* We make the Small Blind pay*/
-    if (Array_Of_Players[Index_SB].Money > Small_Blind)
+    if (Array_Of_Players[Index_SB].Money > Small_Blind )
     {
         // No worries we just bet as usual
         Betting_Add_On_Modifying_Money(&(Array_Of_Players[Index_SB]),Small_Blind);
     }
-    else
+    else if (Array_Of_Players[Index_SB].dead) /* Means he's all in*/
     {
 
     }
