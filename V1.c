@@ -102,6 +102,7 @@ void Afficher_Options()
 
 void Betting_Add_On_Modifying_Money(Player *Array_Of_Players, int Bet)
 {
+    
 
 }
 
@@ -113,11 +114,11 @@ void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     int Bet;
     for (int i=0; i<Number_Of_Players;i++)
     {    
-        if (Array_Of_Players[i].Role == "Small Blind")
+        if (strcmp(Array_Of_Players[i].Role,"Small Blind"))
         {
             Index_SB =i;
         }
-        if (Array_Of_Players[i].Role == "Big Blind")
+        if (strcmp(Array_Of_Players[i].Role == "Big Blind"))
         {
             Index_BB =i;
         }
@@ -128,7 +129,10 @@ void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     if (Array_Of_Players[Index_SB].Money > Small_Blind)
     {
         // No worries we just bet as usual
-
+        Betting_Add_On_Modifying_Money(&(Array_Of_Players[Index_SB]),Small_Blind);
+    }
+    else
+    {
 
     }
 
