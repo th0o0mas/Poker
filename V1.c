@@ -85,9 +85,9 @@ void Initialisation_Roles(Player *Array_Of_Players)
 }
 
 
-void Add_Money(Player *Player_Selected, int *Money_Incremented)
+void Add_Money(Player *Player_Selected, int Money_Incremented)
 {
-    Player_Selected->Money += *Money_Incremented;
+    Player_Selected->Money += Money_Incremented;
 }
 
 void Afficher_Options()
@@ -100,9 +100,9 @@ void Afficher_Options()
     printf("Choisissez votre action (1, 2, 3, 4) : ");
 }
 
-void Betting_Add_On_Modifying_Money(Player *Array_Of_Players, int Bet)
+void Betting_Add_On_Modifying_Money(Player *Player_selected, int Bet)
 {
-
+    Add_Money(Player_selected, -Bet);
 }
 
 void Whole_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind)
