@@ -321,63 +321,107 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     
     /* Now all the players got to bet*/
     int currentPlayer = (Index_BB + 1) % Number_Of_Players;  // Starts right after big blind
-    printf(" \n Dans usual Bettin \n");
-    printf("\n indice joueur actuel : %d \n",currentPlayer);
+
 
     int Actually_betted;
-    do /* Do while structure to make the first bet then check if everything is ALR*/
+    for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
     {
-        for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
-        {
-            printf("On est dans le while");
-            if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
-                printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
-                printf("The current bet is $%d \n", *Bet);
-                Display_Of_Players(Array_Of_Players, currentPlayer);
-                Show_Options();
-                scanf("%d", &Option_chosen);
+        if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
+            printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
+            printf("The current bet is $%d \n", *Bet);
+            Display_Of_Players(Array_Of_Players, currentPlayer);
+            Show_Options();
+            scanf("%d", &Option_chosen);
 
-                switch (Option_chosen) {
-                    case 3:
-                        strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
-                        break;
-                    case 1:
-                        // Raise
-                        printf("How much do you want to raise?: ");
-                        scanf("%d", &Raise);
-                        *Bet += Raise;  // Increases the bet
-                        Did_Bet(Array_Of_Players, currentPlayer, *Bet);
-                        *Pot += *Bet;
-                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
-                        break;
-                    case 2:
-                        // Call
+            switch (Option_chosen) {
+                case 3:
+                    strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
+                    break;
+                case 1:
+                    // Raise
+                    printf("How much do you want to raise?: ");
+                    scanf("%d", &Raise);
+                    *Bet += Raise;  // Increases the bet
+                    Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet);
+                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                    *Pot += Actually_betted;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
+                    break;
+                case 2:
+                    // Call
 
-                        
-                        Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet); // In case of a previous bet has been placed
-                        Did_Bet(Array_Of_Players, currentPlayer,*Bet);
-                        /* If they already have a bet, they should not */
-                        *Pot +=Actually_betted;
-                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
-                        break;
-                    case 4:
-                        // All-in
-                        *Bet = Array_Of_Players[currentPlayer].Money;
-                        Did_Bet(Array_Of_Players, currentPlayer, *Bet);
-                        *Pot += *Bet;
-                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
-                        Array_Of_Players[currentPlayer].isAllin = 1;
-                        break;
-                    default:
-                        printf("Invalid option chosen\n");
-                        break;
-                }
-                currentPlayer = (currentPlayer + 1) % Number_Of_Players;
+                    
+                    Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet); // In case of a previous bet has been placed
+                    Did_Bet(Array_Of_Players, currentPlayer,*Bet);
+                    /* If they already have a bet, they should not */
+                    *Pot +=Actually_betted;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
+                    break;
+                case 4:
+                    // All-in
+                    *Bet = Array_Of_Players[currentPlayer].Money;
+                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                    *Pot += *Bet;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
+                    Array_Of_Players[currentPlayer].isAllin = 1;
+                    break;
+                default:
+                    printf("Invalid option chosen\n");
+                    break;
             }
+            currentPlayer = (currentPlayer + 1) % Number_Of_Players;
         }
+    }
         
 
-    } while (All_Players_Equals(Array_Of_Players, Number_Of_Players));
+    while (All_Players_Equals(Array_Of_Players, Number_Of_Players)!=0)
+    {
+        if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
+            printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
+            printf("The current bet is $%d \n", *Bet);
+            Display_Of_Players(Array_Of_Players, currentPlayer);
+            Show_Options();
+            scanf("%d", &Option_chosen);
+
+            switch (Option_chosen) {
+                case 3:
+                    strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
+                    break;
+                case 1:
+                    // Raise
+                    printf("How much do you want to raise?: ");
+                    scanf("%d", &Raise);
+                    *Bet += Raise;  // Increases the bet
+                    Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet);
+                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                    *Pot += Actually_betted;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
+                    break;
+                case 2:
+                    // Call
+
+                    
+                    Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet); // In case of a previous bet has been placed
+                    Did_Bet(Array_Of_Players, currentPlayer,*Bet);
+                    /* If they already have a bet, they should not */
+                    *Pot +=Actually_betted;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
+                    break;
+                case 4:
+                    // All-in
+                    *Bet = Array_Of_Players[currentPlayer].Money;
+                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                    *Pot += *Bet;
+                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
+                    Array_Of_Players[currentPlayer].isAllin = 1;
+                    break;
+                default:
+                    printf("Invalid option chosen\n");
+                    break;
+            }
+            currentPlayer = (currentPlayer + 1) % Number_Of_Players;
+        }
+    };
     
     // All players did place their bets
 
@@ -415,25 +459,23 @@ int main()
 
     Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
     Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-    
-
     for (int i = 0; i < Number_Of_Players; i++)
     {
         Display_Of_Players(Array_Of_Players, i);
     }
-
     Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
+    printf("\n Pot : %d\n",Pot);
     
     /* Insert whole betting*/
     
     // Other rounds
     clearTerminal();
-    printf("\n\n ---------- NEXT ROUND -------------- \n \n");
+    printf("\n\n ---------- SECOND ROUND -------------- \n \n");
     printf("\n Pot : %d\n",Pot);
-    sleep(2);
-    Player *New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
+    sleep(3);
+    Player *New_Array_Of_Players;
+    New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
     Index_BB = Switch_Roles(New_Array_Of_Players, Number_Of_Players);
-    clearTerminal();
     Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
     
 
@@ -441,32 +483,30 @@ int main()
     {
         Display_Of_Players(New_Array_Of_Players, i);
     }
-
-
+    printf("\n Pot : %d\n",Pot);
     Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players);
+    sleep(5);
 
     clearTerminal();
-    printf("\n\n ---------- NEXT ROUND -------------- \n \n");
+    printf("\n\n ---------- THIRD ROUND -------------- \n \n");
     printf("\n Pot : %d\n",Pot);
     sleep(2);
-
-
     New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
     Switch_Roles(New_Array_Of_Players, Number_Of_Players);
     Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-    printf("\n Pot : %d\n",Pot);
-
     for (int i = 0; i < Number_Of_Players; i++)
     {
         Display_Of_Players(New_Array_Of_Players, i);
     }
-
+    printf("\n Pot : %d\n",Pot);
     Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
 
 
 
 
     printf("\n------------------------\n");
+
+
     free(New_Array_Of_Players);
     sleep(5);
 
