@@ -14,7 +14,7 @@ struct Player
 {
     char Role[SIZE_ROLE]; /* On met tout en statique car plus rapide*/ 
     char Name[SIZE_NAME];
-    char State[SIZE_STATE]; /*Nous permet d'y enregistrer si ALL IN, si se couche et si suit ou raise ou Mort*/
+    char State[SIZE_STATE]; /*Nous permet d'y enregistrer si se couche et si suit ou raise*/
     int Money;
     int Bet;
     int dead;/* 0 if alive*/
@@ -146,7 +146,7 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
 }
 
 
-void Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
+int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
 {
     int Index_Dealer,Index_SB,Index_BB;
     for (int i=0; i<Number_Of_Player; i++)
@@ -187,10 +187,12 @@ void Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
     if (Index_BB<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
     {
         strcpy(Array_Of_PLayer[Index_BB+1].Role,"Big Blind");
+        return Index_BB+1;
     }
     else /* Means Index_BB is the last element of our array*/
     {
         strcpy(Array_Of_PLayer[0].Role,"Big Blind");
+        return 0;
     }
 
 
@@ -217,7 +219,7 @@ int All_Players_Equals(Player *Array_Of_Players, int Number_Of_Player)
 }
 
 
-void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet)
+void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet, int *Pot)
 {
     Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
     for (int i=0; i<Number_Of_Players;i++)
@@ -242,12 +244,14 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
         // No worries we just bet as usual
         *Bet = Small_Blind;
         Did_Bet(Array_Of_Players,*Index_SB,*Bet);
+        *Pot += *Bet;
         Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_SB]),*Bet);
     }
     else  /*Means he's all in beacause verifying players have money would have deleted the mad before this function*/
     {
         *Bet = Array_Of_Players[*Index_SB].Money;
         Did_Bet(Array_Of_Players,*Index_SB,*Bet);
+        *Pot += *Bet;
         Array_Of_Players[*Index_SB].isAllin=1;
         Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_SB]), Array_Of_Players[*Index_SB].Money);
     }
@@ -260,12 +264,14 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
         {
             *Bet = (*Bet)<<1;
             Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+            *Pot += *Bet;
             Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
         }
         else
         {
             *Bet = Array_Of_Players[*Index_BB].Money;
             Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+            *Pot += *Bet;
             Array_Of_Players[*Index_BB].isAllin=1;
             Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), Array_Of_Players[*Index_BB].Money);
         }
@@ -277,16 +283,19 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
         {
             *Bet = ((*Bet)<<1);
             Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+            *Pot += *Bet;
             Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
         }
-        else /* Covers cases if BB has as musch money as the SB or less*/
+        else /* Covers cases if BB has as much money as the SB or less*/
         {
             int Bet2 = Array_Of_Players[*Index_BB].Money; /* Changes nothing if whole money equals the all in*/
             int difference = *Bet - Bet2;
             Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_SB]), -difference); /* We add back the difference to the small blind if big blind all in is small than small blind all in */
             Array_Of_Players[*Index_SB].Money += difference;
             *Bet=Bet2;
+            *Pot -= difference;
             Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+            *Pot += *Bet;
             Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
             Array_Of_Players[*Index_BB].isAllin=1;
         }
@@ -295,59 +304,81 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     /* We are done with the big blind betting*/
 }
 
+int Reset_All_Bets_Player_And_Gen(Player *Array_Of_Players, int Number_Of_Player) /* return the base bet for the next round which is 0*/
+{
+    for (int i=0; i<Number_Of_Player; i++)
+        Array_Of_Players[i].Bet=0;
+    return 0;
+    
+}
 
 
 
-void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Bet, int Index_BB)
+void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Bet, int Index_BB, int *Pot)
 {
     /*  Small Blind laways bet first (could implement the guy raising being the first one to bid) */
     int Option_chosen,Raise;
     
     /* Now all the players got to bet*/
     int currentPlayer = (Index_BB + 1) % Number_Of_Players;  // Starts right after big blind
+    printf(" \n Dans usual Bettin \n");
+    printf("\n indice joueur actuel : %d \n",currentPlayer);
+
     int Actually_betted;
-    while (All_Players_Equals(Array_Of_Players, Number_Of_Players)) {  // Continues until all players paid the same
-        if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
-            printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
-            printf("The current bet is $%d \n", *Bet);
-            Display_Of_Players(Array_Of_Players, currentPlayer);
-            Show_Options();
-            scanf("%d", &Option_chosen);
+    do /* Do while structure to make the first bet then check if everything is ALR*/
+    {
+        for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
+        {
+            printf("On est dans le while");
+            if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
+                printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
+                printf("The current bet is $%d \n", *Bet);
+                Display_Of_Players(Array_Of_Players, currentPlayer);
+                Show_Options();
+                scanf("%d", &Option_chosen);
 
-            switch (Option_chosen) {
-                case 3:
-                    strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
-                    break;
-                case 1:
-                    // Raise
-                    printf("How much do you want to raise?: ");
-                    scanf("%d", &Raise);
-                    *Bet += Raise;  // Increases the bet
-                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
-                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
-                    break;
-                case 2:
-                    // Call
+                switch (Option_chosen) {
+                    case 3:
+                        strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
+                        break;
+                    case 1:
+                        // Raise
+                        printf("How much do you want to raise?: ");
+                        scanf("%d", &Raise);
+                        *Bet += Raise;  // Increases the bet
+                        Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                        *Pot += *Bet;
+                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
+                        break;
+                    case 2:
+                        // Call
 
-                    
-                    Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet); // In case of a previous bet has been placed
-                    Did_Bet(Array_Of_Players, currentPlayer,*Bet);
-                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
-                    break;
-                case 4:
-                    // All-in
-                    *Bet = Array_Of_Players[currentPlayer].Money;
-                    Did_Bet(Array_Of_Players, currentPlayer, *Bet);
-                    Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
-                    Array_Of_Players[currentPlayer].isAllin = 1;
-                    break;
-                default:
-                    printf("Invalid option chosen\n");
-                    break;
+                        
+                        Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet); // In case of a previous bet has been placed
+                        Did_Bet(Array_Of_Players, currentPlayer,*Bet);
+                        /* If they already have a bet, they should not */
+                        *Pot +=Actually_betted;
+                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), Actually_betted);
+                        break;
+                    case 4:
+                        // All-in
+                        *Bet = Array_Of_Players[currentPlayer].Money;
+                        Did_Bet(Array_Of_Players, currentPlayer, *Bet);
+                        *Pot += *Bet;
+                        Betting_Add_On_Modifying_Money(&(Array_Of_Players[currentPlayer]), *Bet);
+                        Array_Of_Players[currentPlayer].isAllin = 1;
+                        break;
+                    default:
+                        printf("Invalid option chosen\n");
+                        break;
+                }
+                currentPlayer = (currentPlayer + 1) % Number_Of_Players;
             }
         }
-        currentPlayer = (currentPlayer + 1) % Number_Of_Players;
-    }
+        
+
+    } while (All_Players_Equals(Array_Of_Players, Number_Of_Players));
+    
     // All players did place their bets
 
 }
@@ -359,6 +390,7 @@ int main()
     int Small_Blind = 10;
     int Number_Of_Players = 0;
     int Index_SB,Index_BB,Bet;
+    int Pot=0;
     
     printf("\n \n How many players are present : ");
     scanf("%d", &Number_Of_Players);
@@ -381,21 +413,62 @@ int main()
     sleep(2); // To be able to see the players
     clearTerminal();
 
-    Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet);
-    Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB);
+    Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
+    Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+    
 
     for (int i = 0; i < Number_Of_Players; i++)
     {
         Display_Of_Players(Array_Of_Players, i);
     }
+
+    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
+    
     /* Insert whole betting*/
     
     // Other rounds
+    clearTerminal();
+    printf("\n\n ---------- NEXT ROUND -------------- \n \n");
+    printf("\n Pot : %d\n",Pot);
+    sleep(2);
     Player *New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
-    Switch_Roles(New_Array_Of_Players, Number_Of_Players);
+    Index_BB = Switch_Roles(New_Array_Of_Players, Number_Of_Players);
+    clearTerminal();
+    Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+    
+
+    for (int i = 0; i < Number_Of_Players; i++)
+    {
+        Display_Of_Players(New_Array_Of_Players, i);
+    }
+
+
+    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players);
+
+    clearTerminal();
+    printf("\n\n ---------- NEXT ROUND -------------- \n \n");
+    printf("\n Pot : %d\n",Pot);
+    sleep(2);
+
+
     New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
-    printf("?");
+    Switch_Roles(New_Array_Of_Players, Number_Of_Players);
+    Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+    printf("\n Pot : %d\n",Pot);
+
+    for (int i = 0; i < Number_Of_Players; i++)
+    {
+        Display_Of_Players(New_Array_Of_Players, i);
+    }
+
+    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
+
+
+
+
+    printf("\n------------------------\n");
     free(New_Array_Of_Players);
+    sleep(5);
 
     return 0;
 }
