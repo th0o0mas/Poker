@@ -475,7 +475,6 @@ int main()
     sleep(3);
     Player *New_Array_Of_Players;
     New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
-    Index_BB = Switch_Roles(New_Array_Of_Players, Number_Of_Players);
     Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
     
 
@@ -492,7 +491,6 @@ int main()
     printf("\n Pot : %d\n",Pot);
     sleep(2);
     New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
-    Switch_Roles(New_Array_Of_Players, Number_Of_Players);
     Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
     for (int i = 0; i < Number_Of_Players; i++)
     {
@@ -508,7 +506,7 @@ int main()
 
 
     free(New_Array_Of_Players);
-    sleep(5);
+    
 
     return 0;
 }
