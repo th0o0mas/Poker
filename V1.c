@@ -427,6 +427,37 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 
 }
 
+
+void whowon(Player *Array_Of_Players, int *Pot, int Number_Of_Players) {
+    char winner_name[SIZE_NAME];
+    int test = 0;
+    int index = -1;
+
+    while (test == 0) {
+        printf("Who won this round ? \n");
+            scanf("%s",winner_name);
+            winner_name[strcspn(winner_name, "\n")] = '\0';  
+
+            for (int i = 0; i < Number_Of_Players; i++) {
+                if (strcmp(Array_Of_Players[i].Name, winner_name) == 0) {
+                    test = 1;
+                    index = i;  
+                    break;
+                }
+            }
+
+            if (test == 1) {
+                Array_Of_Players[index].Money += *Pot;  
+                printf("\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+                printf("%s won this round and his balance is now %d\n", Array_Of_Players[index].Name, Array_Of_Players[index].Money);
+                printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+            } else {
+                printf("Enter a valid name please\n");
+            }
+        
+    }
+}
+
     
 int main()
 {
@@ -454,7 +485,7 @@ int main()
     {
         Display_Of_Players(Array_Of_Players, i);
     }
-    sleep(2); // To be able to see the players
+    sleep(3); // To be able to see the players
     clearTerminal();
 
     Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
@@ -497,6 +528,7 @@ int main()
         Display_Of_Players(New_Array_Of_Players, i);
     }
     printf("\n Pot : %d\n",Pot);
+    whowon(Array_Of_Players, &Pot, Number_Of_Players);
     Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
 
 
