@@ -364,7 +364,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     
     /* Now all the players got to bet*/
     int currentPlayer = (Index_BB + 1) % Number_Of_Players;  // Starts right after big blind
-
+    int number_folds=0;
 
     int Actually_betted;
     for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
@@ -379,6 +379,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
             switch (Option_chosen) {
                 case 3:
                     strcpy(Array_Of_Players[currentPlayer].State, "Fold");
+                    number_folds++;
                     break;
                 case 1:
                     // Raise
@@ -413,6 +414,14 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     break;
             }
             currentPlayer = (currentPlayer + 1) % Number_Of_Players;
+        }
+        if (number_folds==Number_Of_Players-1){
+            Array_Of_Players[currentPlayer].Money += *Pot;  
+                printf("\n\n$-------------------------$\n\n");
+                printf("%s won this round and his balance is now %d\n", Array_Of_Players[currentPlayer].Name, Array_Of_Players[currentPlayer].Money);
+                printf("\n\n$-------------------------$\n\n");
+                sleep(5);
+            return;
         }
     }
         
@@ -559,8 +568,6 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
         
     }
     
-    // Si plus d'un joueur est en jeu après tous les rounds, on demande qui a gagné
-    whowon(Array_Of_Players, *Pot, Number_Of_Players); //à changer de place uniquement si +1 joueurs à la fin
     
 }
 
