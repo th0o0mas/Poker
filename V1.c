@@ -350,21 +350,20 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 int Reset_All_Bets_Player_And_Gen(Player *Array_Of_Players, int Number_Of_Player) /* return the base bet for the next round which is 0*/
 {
     for (int i=0; i<Number_Of_Player; i++)
-    {
         Array_Of_Players[i].Bet=0;
-    }
     return 0;
     
 }
 
-void Reset_AllIn_State(Player *Array_Of_Players, int Number_Of_Player)
+void Reset_AllIn_Folds(Player *Array_Of_Player, int Number_Of_Players)
 {
-    for (int i=0; i<Number_Of_Player; i++)
+    for (int i=0; i<Number_Of_Players; i++)
     {
-        Array_Of_Players[i].isAllin =0;
-        strcpy(Array_Of_Players[i].State,"Neutral");
+        Array_Of_Player[i].isAllin =0;
+        strcpy(Array_Of_Player[i].State, "N"); /* N for neutral*/
     }
 }
+
 
 void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
     char winner_name[SIZE_NAME];
@@ -634,7 +633,9 @@ int main()
     sleep(3); // To be able to see the players
     
     rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played);
-    Reset_AllIn_State(Array_Of_Players,Number_Of_Players);
+    Reset_AllIn_Folds(Array_Of_Players,Number_Of_Players); /* To ensure that players dont stay all in forever or fold forever*/
+
+    
     // End of First game
 
     // All of the next games can now begin ( we use dynamic tables because of the possibility of someone dying and of so we need a New Table)
