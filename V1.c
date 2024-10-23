@@ -7,7 +7,7 @@
 #define SIZE_ROLE 13
 #define SIZE_NAME 20
 #define SIZE_STATE 7
-#define NUMBER_OF_ROUNDS 5
+#define NUMBER_OF_ROUNDS 4
 
 // Def Structures
 
@@ -247,12 +247,16 @@ void Did_Bet(Player *Array_Of_Players, int Index_the_one_betting, int Bet)
 int All_Players_Equals(Player *Array_Of_Players, int Number_Of_Player)
 {
     int Bet = Array_Of_Players[0].Bet;
+    int increment;
     for (int i=0; i<Number_Of_Player; i++)
     {
         if (Array_Of_Players[i].Bet != Bet && (strcmp(Array_Of_Players[i].State,"Fold")!=0))
         {
-            return 1;
+            increment++;
         }
+    }
+    if (increment == Number_Of_Player-1){
+        return 1;
     }
     return 0;
 }
@@ -459,6 +463,12 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     break;
             }
             currentPlayer = (currentPlayer + 1) % Number_Of_Players;
+            
+        }
+        else {
+            currentPlayer = (currentPlayer + 1) % Number_Of_Players;
+            
+            return;
         }
     };
     
@@ -498,6 +508,15 @@ void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
     }
 }
 
+int Number_Of_Allin(Player* Array_Of_Players, int Number_Of_Players){
+    int nb_allin=0;
+    for (int i=0;i<Number_Of_Players;i++){
+        if (Array_Of_Players[i].isAllin==1){
+            nb_allin++;
+        }
+    }
+    return nb_allin;
+}
 
 int Number_Of_Players_Still_In(Player *Array_Of_Players,int Number_Of_Players)
 {
@@ -513,6 +532,39 @@ int Number_Of_Players_Still_In(Player *Array_Of_Players,int Number_Of_Players)
     return Output;
 }
 
+void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet, int *Pot, char **Round, int Rounds_Played) {
+    int Players_Not_Folded = Number_Of_Players;
+    
+    Blind_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Index_SB, Index_BB, Bet, Pot);
+    
+    while (Players_Not_Folded > 1 && Rounds_Played <= NUMBER_OF_ROUNDS -1 ) {    
+        
+            printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
+            printf("\n Pot : $%d\n", *Pot);
+            
+            Usual_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Bet, *Index_BB, Pot);
+            
+            for (int i = 0; i < Number_Of_Players; i++) {
+                Display_Of_Players(Array_Of_Players, i);
+            }
+            
+            printf("\n Pot : $%d\n", *Pot);
+            
+            *Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players, Number_Of_Players);       
+            Players_Not_Folded = Number_Of_Players_Still_In(Array_Of_Players, Number_Of_Players);
+            (Rounds_Played)++;
+         
+            
+            
+        
+    }
+    
+    // Si plus d'un joueur est en jeu après tous les rounds, on demande qui a gagné
+    whowon(Array_Of_Players, *Pot, Number_Of_Players); //à changer de place uniquement si +1 joueurs à la fin
+    
+}
+
+
 
 int main()
 {
@@ -521,12 +573,13 @@ int main()
     int Number_Of_Players = 0;
     int Index_SB,Index_BB,Bet, Players_Not_Folded;
     int Pot=0,Rounds_Played=0;
-    char *Round[NUMBER_OF_ROUNDS]={"Preflop","Flop","Turn","River","Last"};
+    char *Round[NUMBER_OF_ROUNDS]={"Preflop","Flop","Turn","River"};
     
     printf("\n \n How many players are present : ");
     scanf("%d", &Number_Of_Players);
     getchar();
-    Player Array_Of_Players[Number_Of_Players];
+    Player *Array_Of_Players = (Player *) malloc(Number_Of_Players * sizeof(Player));
+
     
     
     Definition_Of_All_Players(Array_Of_Players, Number_Of_Players);
@@ -542,26 +595,10 @@ int main()
         Display_Of_Players(Array_Of_Players, i);
     }
     sleep(3); // To be able to see the players
-    Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
-    Players_Not_Folded = Number_Of_Players;
-    while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS-1)
-    {    
-        printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
-        printf("\n Pot : $%d\n",Pot);
-        Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-
-        for (int i = 0; i < Number_Of_Players; i++)
-        {
-            Display_Of_Players(Array_Of_Players, i);
-        }
-        printf("\n Pot : $%d\n",Pot);
-        Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players);       
-        Players_Not_Folded = Number_Of_Players_Still_In(Array_Of_Players, Number_Of_Players);
-        Rounds_Played++;
-        clearTerminal();
-    }
-    whowon(Array_Of_Players, Pot, Number_Of_Players);
     
+    rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played);
+
+
     
     // End of First game
 
@@ -582,7 +619,7 @@ int main()
         }
         Blind_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
         Players_Not_Folded = Number_Of_Players;
-        while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS)
+        while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS-1)
         {    
             printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
             printf("\n Pot : $%d\n",Pot);
@@ -595,7 +632,7 @@ int main()
             Bet = Reset_All_Bets_Player_And_Gen(New_Array_Of_Players,Number_Of_Players);
             Players_Not_Folded = Number_Of_Players_Still_In(New_Array_Of_Players, Number_Of_Players);
             Rounds_Played++;
-            clearTerminal();
+            //clearTerminal();
         }
         whowon(New_Array_Of_Players, Pot,Number_Of_Players);
         New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
