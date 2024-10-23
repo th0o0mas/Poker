@@ -448,9 +448,10 @@ void whowon(Player *Array_Of_Players, int *Pot, int Number_Of_Players) {
 
             if (test == 1) {
                 Array_Of_Players[index].Money += *Pot;  
-                printf("\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+                printf("\n\n$-------------------------$\n\n");
                 printf("%s won this round and his balance is now %d\n", Array_Of_Players[index].Name, Array_Of_Players[index].Money);
-                printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+                printf("\n\n$-------------------------$\n\n");
+                sleep(5);
             } else {
                 printf("Enter a valid name please\n");
             }
