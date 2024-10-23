@@ -357,7 +357,36 @@ int Reset_All_Bets_AllIn_Fold(Player *Array_Of_Players, int Number_Of_Player) /*
     
 }
 
+void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
+    char winner_name[SIZE_NAME];
+    int test = 0;
+    int index = -1;
 
+    while (test == 0) {
+        printf("Who won this round ? \n");
+            scanf("%s",winner_name);
+            winner_name[strcspn(winner_name, "\n")] = '\0';  
+
+            for (int i = 0; i < Number_Of_Players; i++) {
+                if (strcmp(Array_Of_Players[i].Name, winner_name) == 0) {
+                    test = 1;
+                    index = i;  
+                    break;
+                }
+            }
+
+            if (test == 1) {
+                Array_Of_Players[index].Money += Pot;  
+                printf("\n\n$-------------------------$\n\n");
+                printf("%s won this round and his balance is now %d\n", Array_Of_Players[index].Name, Array_Of_Players[index].Money);
+                printf("\n\n$-------------------------$\n\n");
+                sleep(5);
+            } else {
+                printf("Enter a valid name please\n");
+            }
+        
+    }
+}
 
 void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Bet, int Index_BB, int *Pot)
 {
@@ -479,45 +508,15 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
         else {
             currentPlayer = (currentPlayer + 1) % Number_Of_Players;
             
-            return;
+            
         }
-    };
+    }
+    
     
     // All players did place their bets
 
 }
 
-
-void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
-    char winner_name[SIZE_NAME];
-    int test = 0;
-    int index = -1;
-
-    while (test == 0) {
-        printf("Who won this round ? \n");
-            scanf("%s",winner_name);
-            winner_name[strcspn(winner_name, "\n")] = '\0';  
-
-            for (int i = 0; i < Number_Of_Players; i++) {
-                if (strcmp(Array_Of_Players[i].Name, winner_name) == 0) {
-                    test = 1;
-                    index = i;  
-                    break;
-                }
-            }
-
-            if (test == 1) {
-                Array_Of_Players[index].Money += Pot;  
-                printf("\n\n$-------------------------$\n\n");
-                printf("%s won this round and his balance is now %d\n", Array_Of_Players[index].Name, Array_Of_Players[index].Money);
-                printf("\n\n$-------------------------$\n\n");
-                sleep(5);
-            } else {
-                printf("Enter a valid name please\n");
-            }
-        
-    }
-}
 
 int Number_Of_Allin(Player* Array_Of_Players, int Number_Of_Players){
     int nb_allin=0;
@@ -568,6 +567,9 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
             
             
         
+    }
+    if (Players_Not_Folded>1){
+        whowon(Array_Of_Players, *Pot,Number_Of_Players);
     }
     
     
