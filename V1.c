@@ -244,18 +244,18 @@ void Did_Bet(Player *Array_Of_Players, int Index_the_one_betting, int Bet)
     Array_Of_Players[Index_the_one_betting].Bet = Bet;
 }
 
-int All_Players_Equals(Player *Array_Of_Players, int Number_Of_Player)
+int All_Players_Equals(Player *Array_Of_Players, int Number_Of_Player, int* Bet)
 {
-    int Bet = Array_Of_Players[0].Bet;
+    
     int increment;
     for (int i=0; i<Number_Of_Player; i++)
     {
-        if (Array_Of_Players[i].Bet != Bet && (strcmp(Array_Of_Players[i].State,"Fold")!=0))
+        if (Array_Of_Players[i].Bet == *Bet && (strcmp(Array_Of_Players[i].State,"Fold")!=0))
         {
             increment++;
         }
     }
-    if (increment == Number_Of_Player-1){
+    if (increment == Number_Of_Player){
         return 1;
     }
     return 0;
@@ -425,6 +425,10 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     // Raise
                     printf("How much do you want to raise?: ");
                     scanf("%d", &Raise);
+                    while (Raise<0){
+                        printf("\nPlease enter a positive value :");
+                        scanf("%d", &Raise);
+                    }
                     *Bet += Raise;  // Increases the bet
                     Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet);
                     Did_Bet(Array_Of_Players, currentPlayer, *Bet);
@@ -466,7 +470,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     }
         
 
-    while (All_Players_Equals(Array_Of_Players, Number_Of_Players)!=0)
+    while (All_Players_Equals(Array_Of_Players, Number_Of_Players, Bet)==0)
     {
         if (strcmp(Array_Of_Players[currentPlayer].State, "Fold") != 0) {
             printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
@@ -478,11 +482,16 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
             switch (Option_chosen) {
                 case 3:
                     strcpy(Array_Of_Players[currentPlayer].State, "Fold");
+                    number_folds++;
                     break;
                 case 1:
                     // Raise
                     printf("How much do you want to raise?: ");
                     scanf("%d", &Raise);
+                    while (Raise<0){
+                        printf("\nPlease enter a positive value :");
+                        scanf("%d", &Raise);
+                    }
                     *Bet += Raise;  // Increases the bet
                     Actually_betted = ((*Bet)-Array_Of_Players[currentPlayer].Bet);
                     Did_Bet(Array_Of_Players, currentPlayer, *Bet);
@@ -518,6 +527,14 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
             currentPlayer = (currentPlayer + 1) % Number_Of_Players;
             
             
+        }
+        if (number_folds==Number_Of_Players-1){
+            Array_Of_Players[currentPlayer].Money += *Pot;  
+                printf("\n\n$-------------------------$\n\n");
+                printf("%s won this round and his balance is now %d\n", Array_Of_Players[currentPlayer].Name, Array_Of_Players[currentPlayer].Money);
+                printf("\n\n$-------------------------$\n\n");
+                sleep(5);
+            return;
         }
     }
     
