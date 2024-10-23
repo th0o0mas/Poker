@@ -2,10 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdbool.h>
 #define MAX_PLAYERS 14
 #define SIZE_ROLE 13
 #define SIZE_NAME 20
 #define SIZE_STATE 7
+#define NUMBER_OF_ROUNDS 5
 
 // Def Structures
 
@@ -115,37 +117,6 @@ void Betting_Add_On_Modifying_Money(Player *Player_selected, int Bet)
     Add_Money(Player_selected, -Bet);
 }
 
-Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Players)
-{
-    int New_number_of_players = *Number_of_Players;
-    
-    for (int i = 0; i < *Number_of_Players; i++) 
-    {
-        if (Array_Of_Players[i].Money == 0)
-        {
-            printf(" %s is dead ", Array_Of_Players[i].Name);
-            Array_Of_Players[i].dead = 1;
-            New_number_of_players--;
-        }
-    }
-    
-    Player *New_Array = malloc(New_number_of_players * sizeof(Player));
-
-    int j = 0;  // New index for the new array
-    for (int i = 0; i < *Number_of_Players; i++)
-    {
-        if (Array_Of_Players[i].Money != 0)
-        {
-            New_Array[j] = Array_Of_Players[i];  // Copies only the remaining players
-            j++;
-        }
-    }
-
-    *Number_of_Players = New_number_of_players;
-    return New_Array;
-}
-
-
 int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
 {
     int Index_Dealer,Index_SB,Index_BB;
@@ -195,9 +166,77 @@ int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
         return 0;
     }
 
+    /*We have to check if all roles are allocated*/
+    if (Number_Of_Player>=3) /* All roles should be present*/
+    {
+        
+        int Index_One_Without_Roles;
+        bool Dealer,SB,BB,Neutral;
+        for (int i=0; i<Number_Of_Player; i++)
+        {
+            if (strcmp(Array_Of_PLayer[i].Role,"Dealer")==0)
+            {
+                Dealer = true;
+            }
+            else if (strcmp(Array_Of_PLayer[i].Role,"Small Blind")==0)
+            {
+                SB = true;
+            }
+            else if (strcmp(Array_Of_PLayer[i].Role,"Big Blind")==0)
+            {
+                BB = true;
+            }
+            else /* Role is neutral*/
+            { 
+                Neutral = true;
+            }
+            
+        }
+        if (Dealer && SB && BB)
+        {
+        }
+        else
+        {
+            printf("There is an error");
+            /* Should add that should assign missing roles to that neutral*/
+        }
+    }
 
 
+    }
+
+
+
+Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Players)
+{
+    int New_number_of_players = *Number_of_Players;
+    
+    for (int i = 0; i < *Number_of_Players; i++) 
+    {
+        if (Array_Of_Players[i].Money == 0)
+        {
+            printf(" %s is dead ", Array_Of_Players[i].Name);
+            Array_Of_Players[i].dead = 1;
+            New_number_of_players--;
+        }
+    }
+    
+    Player *New_Array = malloc(New_number_of_players * sizeof(Player));
+
+    int j = 0;  // New index for the new array
+    for (int i = 0; i < *Number_of_Players; i++)
+    {
+        if (Array_Of_Players[i].Money != 0)
+        {
+            New_Array[j] = Array_Of_Players[i];  // Copies only the remaining players
+            j++;
+        }
+    }
+
+    *Number_of_Players = New_number_of_players;
+    return New_Array;
 }
+
 
 
 void Did_Bet(Player *Array_Of_Players, int Index_the_one_betting, int Bet)
@@ -210,7 +249,7 @@ int All_Players_Equals(Player *Array_Of_Players, int Number_Of_Player)
     int Bet = Array_Of_Players[0].Bet;
     for (int i=0; i<Number_Of_Player; i++)
     {
-        if (Array_Of_Players[i].Bet != Bet && (strcmp(Array_Of_Players[i].Role,"Fold")!=0))
+        if (Array_Of_Players[i].Bet != Bet && (strcmp(Array_Of_Players[i].State,"Fold")!=0))
         {
             return 1;
         }
@@ -326,7 +365,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     int Actually_betted;
     for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
     {
-        if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
+        if (strcmp(Array_Of_Players[currentPlayer].State, "Fold") != 0 || Array_Of_Players[currentPlayer].isAllin== 0) {
             printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
             printf("The current bet is $%d \n", *Bet);
             Display_Of_Players(Array_Of_Players, currentPlayer);
@@ -335,7 +374,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 
             switch (Option_chosen) {
                 case 3:
-                    strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
+                    strcpy(Array_Of_Players[currentPlayer].State, "Fold");
                     break;
                 case 1:
                     // Raise
@@ -376,7 +415,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 
     while (All_Players_Equals(Array_Of_Players, Number_Of_Players)!=0)
     {
-        if (strcmp(Array_Of_Players[currentPlayer].Role, "Fold") != 0) {
+        if (strcmp(Array_Of_Players[currentPlayer].State, "Fold") != 0) {
             printf("\n--- %s 's turn to play ---\n", Array_Of_Players[currentPlayer].Name);
             printf("The current bet is $%d \n", *Bet);
             Display_Of_Players(Array_Of_Players, currentPlayer);
@@ -385,7 +424,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 
             switch (Option_chosen) {
                 case 3:
-                    strcpy(Array_Of_Players[currentPlayer].Role, "Fold");
+                    strcpy(Array_Of_Players[currentPlayer].State, "Fold");
                     break;
                 case 1:
                     // Raise
@@ -428,7 +467,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
 }
 
 
-void whowon(Player *Array_Of_Players, int *Pot, int Number_Of_Players) {
+void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
     char winner_name[SIZE_NAME];
     int test = 0;
     int index = -1;
@@ -447,7 +486,7 @@ void whowon(Player *Array_Of_Players, int *Pot, int Number_Of_Players) {
             }
 
             if (test == 1) {
-                Array_Of_Players[index].Money += *Pot;  
+                Array_Of_Players[index].Money += Pot;  
                 printf("\n\n$-------------------------$\n\n");
                 printf("%s won this round and his balance is now %d\n", Array_Of_Players[index].Name, Array_Of_Players[index].Money);
                 printf("\n\n$-------------------------$\n\n");
@@ -459,86 +498,122 @@ void whowon(Player *Array_Of_Players, int *Pot, int Number_Of_Players) {
     }
 }
 
-    
+
+int Number_Of_Players_Still_In(Player *Array_Of_Players,int Number_Of_Players)
+{
+    int Output=Number_Of_Players;
+    for (int i=0; i<Number_Of_Players; i++)
+    {
+        if (strcmp(Array_Of_Players[i].State,"Fold")==0)
+        {
+            Output--;
+        }
+
+    }
+    return Output;
+}
+
+
 int main()
 {
     PrintPokerBanner();
     int Small_Blind = 10;
     int Number_Of_Players = 0;
-    int Index_SB,Index_BB,Bet;
-    int Pot=0;
+    int Index_SB,Index_BB,Bet, Players_Not_Folded;
+    int Pot=0,Rounds_Played=0;
+    char *Round[NUMBER_OF_ROUNDS]={"Preflop","Flop","Turn","River","Last"};
     
     printf("\n \n How many players are present : ");
     scanf("%d", &Number_Of_Players);
     getchar();
     Player Array_Of_Players[Number_Of_Players];
-    clearTerminal();
     
     
     Definition_Of_All_Players(Array_Of_Players, Number_Of_Players);
-    clearTerminal();
-    
-    
+     
+
+    //Structure quite weird i have to agree, this part was training to use only static tables that's why it's not in the loop, it's useful only for the first game
+
     // First round
     Initialisation_Roles(Array_Of_Players);
-    
+
     for (int i = 0; i < Number_Of_Players; i++)
     {
         Display_Of_Players(Array_Of_Players, i);
     }
     sleep(3); // To be able to see the players
-    clearTerminal();
-
     Blind_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
-    Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-    for (int i = 0; i < Number_Of_Players; i++)
-    {
-        Display_Of_Players(Array_Of_Players, i);
+    Players_Not_Folded = Number_Of_Players;
+    while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS-1)
+    {    
+        printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
+        printf("\n Pot : $%d\n",Pot);
+        Usual_Betting(Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+
+        for (int i = 0; i < Number_Of_Players; i++)
+        {
+            Display_Of_Players(Array_Of_Players, i);
+        }
+        printf("\n Pot : $%d\n",Pot);
+        Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players);       
+        Players_Not_Folded = Number_Of_Players_Still_In(Array_Of_Players, Number_Of_Players);
+        Rounds_Played++;
+        clearTerminal();
     }
-    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
-    printf("\n Pot : %d\n",Pot);
+    whowon(Array_Of_Players, Pot, Number_Of_Players);
     
-    /* Insert whole betting*/
     
-    // Other rounds
-    clearTerminal();
-    printf("\n\n ---------- SECOND ROUND -------------- \n \n");
-    printf("\n Pot : %d\n",Pot);
-    sleep(3);
+    // End of First game
+
+    // All of the next games can now begin ( we use dynamic tables because of the possibility of someone dying and of so we need a New Table)
     Player *New_Array_Of_Players;
     New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
-    Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+    while (Number_Of_Players >1)
+    {
+       
+       Pot = 0; 
+       Switch_Roles(New_Array_Of_Players,Number_Of_Players);
+       Rounds_Played = 0;
+       printf("\n------------- Roles have been switched ------------ \n");
+       for (int i = 0; i < Number_Of_Players; i++)
+        {
+            
+            Display_Of_Players(New_Array_Of_Players, i);
+        }
+        Blind_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
+        Players_Not_Folded = Number_Of_Players;
+        while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS)
+        {    
+            printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
+            printf("\n Pot : $%d\n",Pot);
+            Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
+            for (int i = 0; i < Number_Of_Players; i++)
+            {
+                Display_Of_Players(New_Array_Of_Players, i);
+            }
+            printf("\n Pot : %d\n",Pot);
+            Bet = Reset_All_Bets_Player_And_Gen(New_Array_Of_Players,Number_Of_Players);
+            Players_Not_Folded = Number_Of_Players_Still_In(New_Array_Of_Players, Number_Of_Players);
+            Rounds_Played++;
+            clearTerminal();
+        }
+        whowon(New_Array_Of_Players, Pot,Number_Of_Players);
+        New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
+    }
+
+
+
+
+        
+        
+
+
+
+
+
     
-
-    for (int i = 0; i < Number_Of_Players; i++)
-    {
-        Display_Of_Players(New_Array_Of_Players, i);
-    }
-    printf("\n Pot : %d\n",Pot);
-    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players);
-    sleep(5);
-
-    clearTerminal();
-    printf("\n\n ---------- THIRD ROUND -------------- \n \n");
-    printf("\n Pot : %d\n",Pot);
-    sleep(2);
-    New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
-    Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-    for (int i = 0; i < Number_Of_Players; i++)
-    {
-        Display_Of_Players(New_Array_Of_Players, i);
-    }
-    printf("\n Pot : %d\n",Pot);
-    whowon(Array_Of_Players, &Pot, Number_Of_Players);
-    Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players,Number_Of_Players); /* Resets for next round*/
-
-
-
-
-    printf("\n------------------------\n");
-
-
     free(New_Array_Of_Players);
+    // That's to add after the final bet on the river
     
 
     return 0;
