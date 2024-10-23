@@ -237,8 +237,6 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
     return New_Array;
 }
 
-
-
 void Did_Bet(Player *Array_Of_Players, int Index_the_one_betting, int Bet)
 {
     Array_Of_Players[Index_the_one_betting].Bet = Bet;
@@ -347,10 +345,14 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     /* We are done with the big blind betting*/
 }
 
-int Reset_All_Bets_Player_And_Gen(Player *Array_Of_Players, int Number_Of_Player) /* return the base bet for the next round which is 0*/
+int Reset_All_Bets_AllIn_Fold(Player *Array_Of_Players, int Number_Of_Player) /* return the base bet for the next round which is 0*/
 {
     for (int i=0; i<Number_Of_Player; i++)
+    {
         Array_Of_Players[i].Bet=0;
+        /*Array_Of_Players[i].isAllin =0;*/
+        strcpy(Array_Of_Players[i].State,"Neutral"); 
+    }
     return 0;
     
 }
@@ -559,7 +561,7 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
             
             printf("\n Pot : $%d\n", *Pot);
             
-            *Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players, Number_Of_Players);       
+            *Bet = Reset_All_Bets_AllIn_Fold(Array_Of_Players, Number_Of_Players);       
             Players_Not_Folded = Number_Of_Players_Still_In(Array_Of_Players, Number_Of_Players);
             (Rounds_Played)++;
          
@@ -636,7 +638,7 @@ int main()
                 Display_Of_Players(New_Array_Of_Players, i);
             }
             printf("\n Pot : %d\n",Pot);
-            Bet = Reset_All_Bets_Player_And_Gen(New_Array_Of_Players,Number_Of_Players);
+            Bet = Reset_All_Bets_AllIn_Fold(New_Array_Of_Players,Number_Of_Players);
             Players_Not_Folded = Number_Of_Players_Still_In(New_Array_Of_Players, Number_Of_Players);
             Rounds_Played++;
             //clearTerminal();
