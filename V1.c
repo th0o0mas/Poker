@@ -205,6 +205,20 @@ int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
 
     }
 
+void break_round(int *SB){
+    int choice;
+    printf("What do you want to do now?\nChoose between the followings propositions :\n1. Continue\n2. Change Blinds\nChoose your action (1, 2, 3, 4) : ");
+    scanf("%d",&choice);
+    while (choice!=1 && choice!=2){
+        printf("Please enter a correct value\nChoose your action (1, 2, 3, 4) : ");
+        scanf("%d",&choice);
+    }
+    switch (choice){
+        case 1: return;
+        case 2: printf("Enter the new small blind value :");
+        scanf("%d",SB);
+    }
+}
 
 
 Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Players)
@@ -595,6 +609,7 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
 int main()
 {
     PrintPokerBanner();
+    
     int Small_Blind = 10;
     int Number_Of_Players = 0;
     int Index_SB,Index_BB,Bet, Players_Not_Folded;
@@ -621,58 +636,21 @@ int main()
         Display_Of_Players(Array_Of_Players, i);
     }
     sleep(3); // To be able to see the players
-    
-    rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played);
-
-
-    
-    // End of First game
-
-    // All of the next games can now begin ( we use dynamic tables because of the possibility of someone dying and of so we need a New Table)
     Player *New_Array_Of_Players;
-    New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
     while (Number_Of_Players >1)
     {
-       
-       Pot = 0; 
-       Switch_Roles(New_Array_Of_Players,Number_Of_Players);
-       Rounds_Played = 0;
-       printf("\n------------- Roles have been switched ------------ \n");
+    rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played);
+    New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
+    Pot = 0;
+    Switch_Roles(New_Array_Of_Players,Number_Of_Players);
+    Rounds_Played = 0;
+    printf("\n------------- Roles have been switched ------------ \n");
        for (int i = 0; i < Number_Of_Players; i++)
-        {
-            
+        {    
             Display_Of_Players(New_Array_Of_Players, i);
         }
-        Blind_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Index_SB,&Index_BB,&Bet,&Pot);
-        Players_Not_Folded = Number_Of_Players;
-        while( Players_Not_Folded>1 && Rounds_Played <= NUMBER_OF_ROUNDS-1)
-        {    
-            printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
-            printf("\n Pot : $%d\n",Pot);
-            Usual_Betting(New_Array_Of_Players,Number_Of_Players,Small_Blind,&Bet,Index_BB,&Pot);
-            for (int i = 0; i < Number_Of_Players; i++)
-            {
-                Display_Of_Players(New_Array_Of_Players, i);
-            }
-            printf("\n Pot : %d\n",Pot);
-            Bet = Reset_All_Bets_Player_And_Gen(New_Array_Of_Players,Number_Of_Players);
-            Players_Not_Folded = Number_Of_Players_Still_In(New_Array_Of_Players, Number_Of_Players);
-            Rounds_Played++;
-            //clearTerminal();
-        }
-        whowon(New_Array_Of_Players, Pot,Number_Of_Players);
-        New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players);
+        break_round(&Small_Blind);
     }
-
-
-
-
-        
-        
-
-
-
-
 
     
     free(New_Array_Of_Players);
