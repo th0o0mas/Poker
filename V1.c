@@ -117,93 +117,40 @@ void Betting_Add_On_Modifying_Money(Player *Player_selected, int Bet)
     Add_Money(Player_selected, -Bet);
 }
 
-int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
-{
-    int Index_Dealer,Index_SB,Index_BB;
-    for (int i=0; i<Number_Of_Player; i++)
-    {
-        if (strcmp(Array_Of_PLayer[i].Role,"Dealer")==0)
-        {
+int Switch_Roles(Player *Array_Of_Players, int Number_Of_Players) {
+    int Index_Dealer = -1, Index_SB = -1, Index_BB = -1;
+    
+    
+    for (int i = 0; i < Number_Of_Players; i++) {
+        if (strcmp(Array_Of_Players[i].Role, "Dealer") == 0) {
             Index_Dealer = i;
-        }
-        else if (strcmp(Array_Of_PLayer[i].Role,"Small Blind")==0)
-        {
+        } else if (strcmp(Array_Of_Players[i].Role, "Small Blind") == 0) {
             Index_SB = i;
-        }
-        else if (strcmp(Array_Of_PLayer[i].Role,"Big Blind")==0)
-        {
+        } else if (strcmp(Array_Of_Players[i].Role, "Big Blind") == 0) {
             Index_BB = i;
         }
     }
-    if (Index_Dealer<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
-    {
-        strcpy(Array_Of_PLayer[Index_Dealer].Role,"Small Blind");/* It's the only one that needs to be put to Neutral in case of more than 3 player*/
-        strcpy(Array_Of_PLayer[Index_Dealer+1].Role,"Big Blind");
+    
+    
+    for (int i = 0; i < Number_Of_Players; i++) {
+        strcpy(Array_Of_Players[i].Role, "Neutre");
     }
 
-    else /* Means Index_Dealer is the last element of our array*/
-    {
-        strcpy(Array_Of_PLayer[0].Role,"Big Blind");
+   
+    if (Index_Dealer != -1) {
+        strcpy(Array_Of_Players[(Index_Dealer + 1) % Number_Of_Players].Role, "Dealer");
+    }
+    if (Index_SB != -1) {
+        strcpy(Array_Of_Players[(Index_SB + 1) % Number_Of_Players].Role, "Small Blind");
+    }
+    if (Index_BB != -1) {
+        strcpy(Array_Of_Players[(Index_BB + 1) % Number_Of_Players].Role, "Big Blind");
     }
 
-    if (Index_SB<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
-    {
-        strcpy(Array_Of_PLayer[Index_SB+1].Role,"Neutre");
-    }
-    else /* Means Index_SB is the last element of our array*/
-    {
-        strcpy(Array_Of_PLayer[0].Role,"Neutre");
-    }
+    // Retourner l'index du nouveau Dealer
+    return (Index_Dealer + 1) % Number_Of_Players;
+}
 
-    if (Index_BB<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
-    {
-        strcpy(Array_Of_PLayer[Index_BB+1].Role,"Dealer");
-        return Index_BB+1;
-    }
-    else /* Means Index_BB is the last element of our array*/
-    {
-        strcpy(Array_Of_PLayer[0].Role,"Dealer");
-        return 0;
-    }
-
-    /*We have to check if all roles are allocated*/
-    if (Number_Of_Player>=3) /* All roles should be present*/
-    {
-        
-        int Index_One_Without_Roles;
-        bool Dealer,SB,BB,Neutral;
-        for (int i=0; i<Number_Of_Player; i++)
-        {
-            if (strcmp(Array_Of_PLayer[i].Role,"Dealer")==0)
-            {
-                Dealer = true;
-            }
-            else if (strcmp(Array_Of_PLayer[i].Role,"Small Blind")==0)
-            {
-                SB = true;
-            }
-            else if (strcmp(Array_Of_PLayer[i].Role,"Big Blind")==0)
-            {
-                BB = true;
-            }
-            else /* Role is neutral*/
-            { 
-                Neutral = true;
-            }
-            
-        }
-        if (Dealer && SB && BB)
-        {
-        }
-        else
-        {
-            printf("There is an error");
-            /* Should add that should assign missing roles to that neutral*/
-        }
-    }
-
-
-    }
 
 void break_round(int *SB){
     int choice;
