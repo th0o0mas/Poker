@@ -137,32 +137,32 @@ int Switch_Roles(Player *Array_Of_PLayer, int Number_Of_Player)
     }
     if (Index_Dealer<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
     {
-        strcpy(Array_Of_PLayer[Index_Dealer].Role,"Neutre");/* It's the only one that needs to be put to Neutral in case of more than 3 player*/
-        strcpy(Array_Of_PLayer[Index_Dealer+1].Role,"Dealer");
+        strcpy(Array_Of_PLayer[Index_Dealer].Role,"Small Blind");/* It's the only one that needs to be put to Neutral in case of more than 3 player*/
+        strcpy(Array_Of_PLayer[Index_Dealer+1].Role,"Big Blind");
     }
 
     else /* Means Index_Dealer is the last element of our array*/
     {
-        strcpy(Array_Of_PLayer[0].Role,"Dealer");
+        strcpy(Array_Of_PLayer[0].Role,"Big Blind");
     }
 
     if (Index_SB<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
     {
-        strcpy(Array_Of_PLayer[Index_SB+1].Role,"Small BLind");
+        strcpy(Array_Of_PLayer[Index_SB+1].Role,"Neutre");
     }
     else /* Means Index_SB is the last element of our array*/
     {
-        strcpy(Array_Of_PLayer[0].Role,"Small BLind");
+        strcpy(Array_Of_PLayer[0].Role,"Neutre");
     }
 
     if (Index_BB<Number_Of_Player-1) /*Means we don't have to start the array at 0*/
     {
-        strcpy(Array_Of_PLayer[Index_BB+1].Role,"Big Blind");
+        strcpy(Array_Of_PLayer[Index_BB+1].Role,"Dealer");
         return Index_BB+1;
     }
     else /* Means Index_BB is the last element of our array*/
     {
-        strcpy(Array_Of_PLayer[0].Role,"Big Blind");
+        strcpy(Array_Of_PLayer[0].Role,"Dealer");
         return 0;
     }
 
@@ -580,9 +580,9 @@ int Number_Of_Players_Still_In(Player *Array_Of_Players,int Number_Of_Players)
     return Output;
 }
 
-void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet, int *Pot, char **Round, int Rounds_Played) {
+void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet, int *Pot, char **Round, int Rounds_Played, int Index_Dealer) {
     int Players_Not_Folded = Number_Of_Players;
-    int currentPlayer = (*Index_BB + 2) % Number_Of_Players;
+    int currentPlayer = (Index_Dealer+3) % Number_Of_Players;
     
     Blind_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Index_SB, Index_BB, Bet, Pot);
     
@@ -592,7 +592,7 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
         printf("\n Pot : $%d\n", *Pot);
         
         Usual_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Bet, *Index_BB, Pot, &currentPlayer);
-        currentPlayer=(*Index_SB);
+        currentPlayer=(*Index_SB)%Number_Of_Players;
         
         for (int i = 0; i < Number_Of_Players; i++) {
             Display_Of_Players(Array_Of_Players, i);
@@ -708,6 +708,7 @@ int main()
     int Number_Of_Players = 0;
     int Index_SB,Index_BB,Bet, Players_Not_Folded,Answer = -1;
     int Pot=0,Rounds_Played=0;
+    int Index_Dealer=0;
     char *Round[NUMBER_OF_ROUNDS]={"Preflop","Flop","Turn","River"};
     printf("\n \n How many players are present : ");
     scanf("%d", &Number_Of_Players);
@@ -722,14 +723,14 @@ int main()
         Display_Of_Players(Array_Of_Players, i);
     }
     sleep(3); // To be able to see the players
-    rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played); // Needs to be outside of the loop bcause we're using Array_Of_Players but then we'll uses New_Array
+    rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played, Index_Dealer); // Needs to be outside of the loop bcause we're using Array_Of_Players but then we'll uses New_Array
     Reset_AllIn_Folds(Array_Of_Players, Number_Of_Players);
     New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players); // The same Here
     while (Number_Of_Players >1)
     {
         
         Pot = 0;
-        Switch_Roles(New_Array_Of_Players,Number_Of_Players);
+        Index_Dealer=Switch_Roles(New_Array_Of_Players,Number_Of_Players)%Number_Of_Players;
         printf("\n------------- Roles have been switched ------------ \n");
         for (int i = 0; i < Number_Of_Players; i++)
         {    
@@ -749,7 +750,7 @@ int main()
         Rounds_Played = 0;
         
         break_round(&Small_Blind);
-        rounds(New_Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played);
+        rounds(New_Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played, Index_Dealer);
         Reset_AllIn_Folds(New_Array_Of_Players, Number_Of_Players);
         New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
     }
