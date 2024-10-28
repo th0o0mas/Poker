@@ -58,6 +58,7 @@ void Initialization_Of_A_Player(char *Name, int Money, char *Role_g, char *State
 
     /* Modifications attributs */
     Player_Yet_To_Initialise->Money = Money;
+    Player_Yet_To_Initialise->isAllin = 0;
     Player_Yet_To_Initialise->Bet = 0;
 }
 
@@ -66,7 +67,7 @@ void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
     int Players_Incremental = 0;
     char Name[SIZE_NAME];
     char Role[SIZE_ROLE] = "Neutre";
-    char State[SIZE_STATE] ="Neutre";
+    char State[SIZE_STATE] ="N";
     int Money = 2000;
     while (Players_Incremental < Players_In_Game) 
     {
@@ -166,6 +167,72 @@ void break_round(int *SB){
         scanf("%d",SB);
     }
 }
+Player* Role_To_Previous_Player(Player *Array_Of_Players, int Index_Player_Being_Deleted, int Number_Of_Players, char *Role_To_Allocate) {
+    int Index_Prior = Index_Player_Being_Deleted - 1;
+    char Temporary_Role[SIZE_ROLE];
+    printf("\n Le role à allouer est %s", Role_To_Allocate);
+
+    printf("\nDébut de Role_To_Previous_Player avec affichage des rôles :\n");
+    for (int i = 0; i < Number_Of_Players; i++) {
+        Display_Of_Players(Array_Of_Players, i);
+    }
+    sleep(4);
+
+    if (Number_Of_Players > 3) {
+        // Gestion standard pour au moins 3 joueurs
+        if (Index_Prior < 0) {
+            // Si l'index est en dehors des limites, retourne au dernier joueur
+            Index_Prior = Number_Of_Players - 1;
+        }
+
+        printf("\nControle du joueur %s\n", Array_Of_Players[Index_Prior].Name);
+        if (strcmp(Array_Of_Players[Index_Prior].Role, "Neutre") == 0) {
+            // Assigne le rôle cible et met le joueur supprimé en Neutre
+            printf("\n Condition de fin \n");
+            printf("Le role est %s", Role_To_Allocate);
+            printf("\n On met ce role a : %s", Array_Of_Players[Index_Prior].Name);
+            strcpy(Array_Of_Players[Index_Prior].Role, Role_To_Allocate);
+            printf("\nOn verifie que bien update (joueur avant) \n");
+            Display_Of_Players(Array_Of_Players,Index_Prior);
+            sleep(1);
+            return Array_Of_Players;
+        } else {
+            // Transfert le rôle actuel pour continuer la boucle
+            strcpy(Temporary_Role, Array_Of_Players[Index_Prior].Role);
+            printf("\n Tempo : %s", Temporary_Role);
+            strcpy(Array_Of_Players[Index_Prior].Role, Role_To_Allocate);
+            return Role_To_Previous_Player(Array_Of_Players, Index_Prior, Number_Of_Players, Temporary_Role);
+        }
+    } 
+    else 
+    {
+        // Cas où le nombre de joueurs est inférieur à 3
+        if (Index_Prior < 0) {
+            // Si l'index est en dehors des limites, retourne au dernier joueur
+            Index_Prior = Number_Of_Players - 1;
+        }
+
+        printf("\nControle du joueur %s\n", Array_Of_Players[Index_Prior].Name);
+        if (strcmp(Array_Of_Players[Index_Prior].Role, "Big Blind") == 0) {
+            // Assigne le rôle cible et met le joueur supprimé en Neutre
+            printf("\n Condition de fin \n");
+            printf("Le role est %s", Role_To_Allocate);
+            printf("\n On met ce role a : %s", Array_Of_Players[Index_Prior].Name);
+            strcpy(Array_Of_Players[Index_Prior].Role, Role_To_Allocate);
+            printf("\nOn verifie que bien update (joueur avant) \n");
+            Display_Of_Players(Array_Of_Players,Index_Prior);
+            sleep(3);
+            return Array_Of_Players;
+        } else {
+            // Transfert le rôle actuel pour continuer la boucle
+            strcpy(Temporary_Role, Array_Of_Players[Index_Prior].Role);
+            printf("\n Tempo : %s", Temporary_Role);
+            strcpy(Array_Of_Players[Index_Prior].Role, Role_To_Allocate);
+            return Role_To_Previous_Player(Array_Of_Players, Index_Prior, Number_Of_Players, Temporary_Role);
+        }
+    }
+}
+
 
 
 Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Players)
@@ -179,6 +246,30 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
             printf(" %s is dead ", Array_Of_Players[i].Name);
             Array_Of_Players[i].dead = 1;
             New_number_of_players--;
+            // We're checking if a role is present to make sure we don't delete one
+            if (*Number_of_Players >3) {
+                if (strcmp(Array_Of_Players[i].Role,"Neutre") != 0)
+                {
+                    printf("\n Player to delete has a role \n");
+                    /*We foward is role to the previous people*/
+                    Array_Of_Players = Role_To_Previous_Player(Array_Of_Players,i,*Number_of_Players, Array_Of_Players[i].Role);
+                    for (int j=0; j<*Number_of_Players; j++)
+                        Display_Of_Players(Array_Of_Players,j);
+                }
+            }
+            else
+            {
+                if (strcmp(Array_Of_Players[i].Role,"Big Blind") != 0)
+                {
+                    printf("\n Player to delete has a role \n");
+                    /*We foward is role to the previous people*/
+                    Array_Of_Players = Role_To_Previous_Player(Array_Of_Players,i,*Number_of_Players, Array_Of_Players[i].Role);
+                    for (int j=0; j<*Number_of_Players; j++)
+                        Display_Of_Players(Array_Of_Players,j);
+                }
+            }
+
+
         }
     }
     
@@ -357,6 +448,15 @@ void whowon(Player *Array_Of_Players, int Pot, int Number_Of_Players) {
     }
 }
 
+void Check_If_Is_All_In(Player *Ptr_Player)
+{
+    if (Ptr_Player->Money == 0)
+    {
+        Ptr_Player->isAllin = 1;
+        printf("\n\n %s IS ALL IN \n \n", Ptr_Player->Name);
+    }
+}
+
 void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Bet, int Index_BB, int *Pot, int *currentPlayer)
 {
     /*  Small Blind laways bet first (could implement the guy raising being the first one to bid) */
@@ -368,7 +468,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     int Actually_betted;
     for (int i=0; i<Number_Of_Players;i++) /* for is there in case of the first ones fold or check cause all of theirs moeny will be the same but we still have to ask everyone to place theirs bets*/
     {
-        if (strcmp(Array_Of_Players[*currentPlayer].State, "Fold") != 0 || Array_Of_Players[*currentPlayer].isAllin== 0) 
+        if (strcmp(Array_Of_Players[*currentPlayer].State, "Fold") != 0 && Array_Of_Players[*currentPlayer].isAllin== 0) 
         {
             printf("\n--- %s 's turn to play ---\n", Array_Of_Players[*currentPlayer].Name);
             printf("The current bet is $%d \n", *Bet);
@@ -394,6 +494,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     Did_Bet(Array_Of_Players, *currentPlayer, *Bet);
                     *Pot += Actually_betted;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), Actually_betted);
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 case 2:
                     // Call
@@ -404,14 +505,17 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     /* If they already have a bet, they should not */
                     *Pot +=Actually_betted;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), Actually_betted);
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 case 4:
                     // All-in
+                    Array_Of_Players[*currentPlayer].Money += Array_Of_Players[*currentPlayer].Bet; // We reset the money
+                    *Pot -= Array_Of_Players[*currentPlayer].Bet;
                     *Bet = Array_Of_Players[*currentPlayer].Money;
                     Did_Bet(Array_Of_Players, *currentPlayer, *Bet);
                     *Pot += *Bet;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), *Bet);
-                    Array_Of_Players[*currentPlayer].isAllin = 1;
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 default:
                     printf("Invalid option chosen\n");
@@ -456,6 +560,7 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     Did_Bet(Array_Of_Players, *currentPlayer, *Bet);
                     *Pot += Actually_betted;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), Actually_betted);
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 case 2:
                     // Call
@@ -466,14 +571,17 @@ void Usual_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
                     /* If they already have a bet, they should not */
                     *Pot +=Actually_betted;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), Actually_betted);
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 case 4:
                     // All-in
+                    Array_Of_Players[*currentPlayer].Money += Array_Of_Players[*currentPlayer].Bet;
+                    *Pot -= Array_Of_Players[*currentPlayer].Bet;
                     *Bet = Array_Of_Players[*currentPlayer].Money;
                     Did_Bet(Array_Of_Players, *currentPlayer, *Bet);
                     *Pot += *Bet;
                     Betting_Add_On_Modifying_Money(&(Array_Of_Players[*currentPlayer]), *Bet);
-                    Array_Of_Players[*currentPlayer].isAllin = 1;
+                    Check_If_Is_All_In(&(Array_Of_Players[*currentPlayer]));
                     break;
                 default:
                     printf("Invalid option chosen\n");
@@ -533,7 +641,7 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
     
     Blind_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Index_SB, Index_BB, Bet, Pot);
     
-    while (Players_Not_Folded > 1 && Rounds_Played <= NUMBER_OF_ROUNDS -1 ) {    
+    while (Players_Not_Folded > 1 && Rounds_Played <= NUMBER_OF_ROUNDS -1) {    
         
         printf("\n\n ---------- %s -------------- \n \n", Round[Rounds_Played]);
         printf("\n Pot : $%d\n", *Pot);
