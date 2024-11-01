@@ -19,8 +19,15 @@ void PrintPokerBanner() {
 }
 void Display_Of_Players(Player *Array_Of_Players, int Index) /*Takes a record of player and the index of our player */
 {
-    printf("\n %s's balance is %d and is Role is %s , Bet = %d  \n",(&Array_Of_Players[Index])->Name,((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Role,(&Array_Of_Players[Index])->Bet);
+    if (strcmp(Array_Of_Players[Index].State,"Fold")!=0)
+    {    printf("\n %s's balance is %d and is Role is %s , Bet = %d  \n",(&Array_Of_Players[Index])->Name,((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Role,(&Array_Of_Players[Index])->Bet);
+    }
+    else
+    {
+        printf("\n  %s %s's %s balance is %d and is Role is %s , Bet = %d  \n",KRED,(&Array_Of_Players[Index])->Name,KNRM,((&Array_Of_Players[Index])->Money), (&Array_Of_Players[Index])->Role,(&Array_Of_Players[Index])->Bet);
+    }
 }
+
 
 void Initialization_Of_A_Player(char *Name, int Money, char *Role_g, char *State_g, Player *Player_Yet_To_Initialise) /*Here we would give the adresse of let's say Array_Of_Players[0] in order to only affect this one*/
 {
@@ -72,60 +79,6 @@ void Initialisation_Roles(Player *Array_Of_Players)
     strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
 }
 
-
-void Add_Money(Player *Player_Selected, int Money_Incremented)
-{
-    Player_Selected->Money += Money_Incremented;
-}
-
-void Show_Options()
-{
-    printf("\nPossible Actions :\n");
-    printf("1. Raise\n");
-    printf("2. Call\n");
-    printf("3. Fold\n");
-    printf("4. All-In\n");
-    printf("Choose your action (1, 2, 3, 4) : ");
-}
-
-void Betting_Add_On_Modifying_Money(Player *Player_selected, int Bet)
-{
-    Add_Money(Player_selected, -Bet);
-}
-
-int Switch_Roles(Player *Array_Of_Players, int Number_Of_Players) {
-    int Index_Dealer = -1, Index_SB = -1, Index_BB = -1;
-    
-    
-    for (int i = 0; i < Number_Of_Players; i++) {
-        if (strcmp(Array_Of_Players[i].Role, "Dealer") == 0) {
-            Index_Dealer = i;
-        } else if (strcmp(Array_Of_Players[i].Role, "Small Blind") == 0) {
-            Index_SB = i;
-        } else if (strcmp(Array_Of_Players[i].Role, "Big Blind") == 0) {
-            Index_BB = i;
-        }
-    }
-    
-    
-    for (int i = 0; i < Number_Of_Players; i++) {
-        strcpy(Array_Of_Players[i].Role, "Neutre");
-    }
-
-   
-    if (Index_Dealer != -1) {
-        strcpy(Array_Of_Players[(Index_Dealer + 1) % Number_Of_Players].Role, "Dealer");
-    }
-    if (Index_SB != -1) {
-        strcpy(Array_Of_Players[(Index_SB + 1) % Number_Of_Players].Role, "Small Blind");
-    }
-    if (Index_BB != -1) {
-        strcpy(Array_Of_Players[(Index_BB + 1) % Number_Of_Players].Role, "Big Blind");
-    }
-
-    // Retourner l'index du nouveau Dealer
-    return (Index_Dealer + 1) % Number_Of_Players;
-}
 
 
 void break_round(int *SB){

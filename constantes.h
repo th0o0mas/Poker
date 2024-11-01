@@ -11,6 +11,14 @@
 #define SIZE_NAME 20
 #define SIZE_STATE 7
 #define NUMBER_OF_ROUNDS 4
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
 
 // Def Structures
 
