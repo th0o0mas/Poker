@@ -25,43 +25,38 @@ int main()
     Player *New_Array_Of_Players;
     Definition_Of_All_Players(Array_Of_Players, Number_Of_Players); // For the following rounds
     // First round
-    Initialisation_Roles(Array_Of_Players);
+    Initialisation_Roles(Array_Of_Players, Number_Of_Players);
     for (int i = 0; i < Number_Of_Players; i++)
     {
         Display_Of_Players(Array_Of_Players, i);
     }
-    sleep(3); // To be able to see the players
+    sleep(2); // To be able to see the players
     rounds(Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played, Index_Dealer); // Needs to be outside of the loop bcause we're using Array_Of_Players but then we'll uses New_Array
     Reset_AllIn_Folds(Array_Of_Players, Number_Of_Players);
-    New_Array_Of_Players = Verify_Players_Have_Money(Array_Of_Players, &Number_Of_Players); // The same Here
+    New_Array_Of_Players = Array_Of_Players;
+    if (Number_Of_Players_Still_In(New_Array_Of_Players,Number_Of_Players)>1)
+        for (int i=0; i<Number_Of_Players ; i++)
+            New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players); // The same Here (loop in case of multiple dead players)
+
+
+
     while (Number_Of_Players >1)
     {
         
         Pot = 0;
         Index_Dealer=Switch_Roles(New_Array_Of_Players,Number_Of_Players)%Number_Of_Players;
-        printf("\n------------- Roles have been switched ------------ \n");
-        for (int i = 0; i < Number_Of_Players; i++)
-        {    
-            Display_Of_Players(New_Array_Of_Players, i);
-        }
-        printf("\n Do you see an issue ? (0 for yes) :");
-        scanf("%d",&Answer);
-        getchar();
-        while (Answer ==0)
-        {
-            Change_Roles_Manually(New_Array_Of_Players, Number_Of_Players);
-            printf("\n Do you see an issue ? (0 for yes) :");
-            scanf("%d",&Answer);
-            getchar();
-        }
-        
         Rounds_Played = 0;
-        
         break_round(&Small_Blind);
         rounds(New_Array_Of_Players, Number_Of_Players, Small_Blind, &Index_SB, &Index_BB, &Bet, &Pot, Round, Rounds_Played, Index_Dealer);
         Reset_AllIn_Folds(New_Array_Of_Players, Number_Of_Players);
-        New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players);
+        if (Number_Of_Players_Still_In(New_Array_Of_Players,Number_Of_Players)>1)
+            for (int i=0; i<Number_Of_Players ; i++)
+                New_Array_Of_Players = Verify_Players_Have_Money(New_Array_Of_Players, &Number_Of_Players); // The same Here (loop in case of multiple dead players)
+
+
     }
+
+    printf("WE HAVE A WINNER");
 
 
     free(New_Array_Of_Players);

@@ -62,46 +62,49 @@ void Blind_Betting(Player *Array_Of_Players, int Number_Of_Players, int Small_Bl
     /*Small Blind is done betting for now*/
 
     /* We make big blind pay now*/
-    if (Array_Of_Players[*Index_SB].isAllin==0)
+    if (Number_Of_Players>2)
     {
-        if (Array_Of_Players[*Index_BB].Money > ((*Bet)<<1))
+        if (Array_Of_Players[*Index_SB].isAllin==0)
         {
-            *Bet = (*Bet)<<1;
-            Did_Bet(Array_Of_Players,*Index_BB,*Bet);
-            *Pot += *Bet;
-            Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
+            if (Array_Of_Players[*Index_BB].Money > ((*Bet)<<1))
+            {
+                *Bet = (*Bet)<<1;
+                Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+                *Pot += *Bet;
+                Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
+            }
+            else
+            {
+                *Bet = Array_Of_Players[*Index_BB].Money;
+                Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+                *Pot += *Bet;
+                Array_Of_Players[*Index_BB].isAllin=1;
+                Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), Array_Of_Players[*Index_BB].Money);
+            }
         }
         else
         {
-            *Bet = Array_Of_Players[*Index_BB].Money;
-            Did_Bet(Array_Of_Players,*Index_BB,*Bet);
-            *Pot += *Bet;
-            Array_Of_Players[*Index_BB].isAllin=1;
-            Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), Array_Of_Players[*Index_BB].Money);
-        }
-    }
-    else
-    {
-        /* The bet does not change*/
-        if (Array_Of_Players[*Index_BB].Money > (((*Bet)<<1)))
-        {
-            *Bet = ((*Bet)<<1);
-            Did_Bet(Array_Of_Players,*Index_BB,*Bet);
-            *Pot += *Bet;
-            Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
-        }
-        else /* Covers cases if BB has as much money as the SB or less*/
-        {
-            int Bet2 = Array_Of_Players[*Index_BB].Money; /* Changes nothing if whole money equals the all in*/
-            int difference = *Bet - Bet2;
-            Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_SB]), -difference); /* We add back the difference to the small blind if big blind all in is small than small blind all in */
-            Array_Of_Players[*Index_SB].Money += difference;
-            *Bet=Bet2;
-            *Pot -= difference;
-            Did_Bet(Array_Of_Players,*Index_BB,*Bet);
-            *Pot += *Bet;
-            Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
-            Array_Of_Players[*Index_BB].isAllin=1;
+            /* The bet does not change*/
+            if (Array_Of_Players[*Index_BB].Money > (((*Bet)<<1)))
+            {
+                *Bet = ((*Bet)<<1);
+                Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+                *Pot += *Bet;
+                Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
+            }
+            else /* Covers cases if BB has as much money as the SB or less*/
+            {
+                int Bet2 = Array_Of_Players[*Index_BB].Money; /* Changes nothing if whole money equals the all in*/
+                int difference = *Bet - Bet2;
+                Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_SB]), -difference); /* We add back the difference to the small blind if big blind all in is small than small blind all in */
+                Array_Of_Players[*Index_SB].Money += difference;
+                *Bet=Bet2;
+                *Pot -= difference;
+                Did_Bet(Array_Of_Players,*Index_BB,*Bet);
+                *Pot += *Bet;
+                Betting_Add_On_Modifying_Money(&(Array_Of_Players[*Index_BB]), *Bet);
+                Array_Of_Players[*Index_BB].isAllin=1;
+            }
         }
     }
 
@@ -278,8 +281,15 @@ int Number_Of_Allin(Player* Array_Of_Players, int Number_Of_Players){
 
 void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, int *Index_SB, int *Index_BB, int *Bet, int *Pot, char **Round, int Rounds_Played, int Index_Dealer) {
     int Players_Not_Folded = Number_Of_Players;
-    int currentPlayer = (Index_Dealer+3) % Number_Of_Players;
-    
+    int currentPlayer;
+    if (Number_Of_Players>2)
+    {
+        currentPlayer = (Index_Dealer+3) % Number_Of_Players;
+    }
+    else
+    {
+        currentPlayer = Index_Dealer;
+    }
     Blind_Betting(Array_Of_Players, Number_Of_Players, Small_Blind, Index_SB, Index_BB, Bet, Pot);
     
     while (Players_Not_Folded > 1 && Rounds_Played <= NUMBER_OF_ROUNDS -1) {    
@@ -299,8 +309,7 @@ void rounds(Player *Array_Of_Players, int Number_Of_Players, int Small_Blind, in
         *Bet = Reset_All_Bets_Player_And_Gen(Array_Of_Players, Number_Of_Players);       
         Players_Not_Folded = Number_Of_Players_Still_In(Array_Of_Players, Number_Of_Players);
         
-        Rounds_Played++;  
-        printf("Played");          
+        Rounds_Played++;            
     }
     if (Players_Not_Folded>1){
         whowon(Array_Of_Players, *Pot,Number_Of_Players);

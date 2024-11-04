@@ -91,6 +91,7 @@ Player* Role_To_Previous_Player(Player *Array_Of_Players, int Index_Player_Being
 Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Players)
 {
     int New_number_of_players = *Number_of_Players;
+    int Index_Of_Dead_P;
     
     for (int i = 0; i < *Number_of_Players; i++) 
     {
@@ -98,6 +99,7 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
         {
             printf(" %s is dead ", Array_Of_Players[i].Name);
             Array_Of_Players[i].dead = 1;
+            Index_Of_Dead_P = i;
             New_number_of_players--;
             // We're checking if a role is present to make sure we don't delete one
             if (*Number_of_Players >3) {
@@ -108,6 +110,7 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
                     Array_Of_Players = Role_To_Previous_Player(Array_Of_Players,i,*Number_of_Players, Array_Of_Players[i].Role);
                     for (int j=0; j<*Number_of_Players; j++)
                         Display_Of_Players(Array_Of_Players,j);
+                    break;
                 }
             }
             else
@@ -119,19 +122,24 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
                     Array_Of_Players = Role_To_Previous_Player(Array_Of_Players,i,*Number_of_Players, Array_Of_Players[i].Role);
                     for (int j=0; j<*Number_of_Players; j++)
                         Display_Of_Players(Array_Of_Players,j);
+                    break;
                 }
             }
 
 
         }
     }
+    printf("On vient de break");
+    for (int j=0; j<*Number_of_Players; j++)
+        Display_Of_Players(Array_Of_Players,j);
+
     
     Player *New_Array = malloc(New_number_of_players * sizeof(Player));
 
     int j = 0;  // New index for the new array
     for (int i = 0; i < *Number_of_Players; i++)
     {
-        if (Array_Of_Players[i].Money > 0)
+        if (i!= Index_Of_Dead_P)
         {
             New_Array[j] = Array_Of_Players[i];  // Copies only the remaining players
             j++;
@@ -139,6 +147,12 @@ Player *Verify_Players_Have_Money(Player *Array_Of_Players, int *Number_of_Playe
     }
 
     *Number_of_Players = New_number_of_players;
+
+    printf("ON SORT DU VERYF");
+    for (int j=0; j<*Number_of_Players; j++)
+        Display_Of_Players(New_Array,j);
+
+    printf("\n --------\n");
     return New_Array;
 }
 

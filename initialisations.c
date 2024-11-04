@@ -71,12 +71,13 @@ void Definition_Of_All_Players(Player *Array_Of_Player, int Players_In_Game)
 }
 
 
-void Initialisation_Roles(Player *Array_Of_Players)
+void Initialisation_Roles(Player *Array_Of_Players, int Number_Of_Players)
 {
     /* On initialise les rôles de manière assez bête , 0 prend Dealer, 1 Prend SB, 2 BB*/
     strcpy((&Array_Of_Players[0])->Role,"Dealer");
     strcpy((&Array_Of_Players[1])->Role,"Small Blind");
-    strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
+    if (Number_Of_Players>2)
+        strcpy((&Array_Of_Players[2])->Role,"Big Blind"); /* Do tests To make sure of performances*/
 }
 
 
